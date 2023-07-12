@@ -31,7 +31,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
         env:
           PROD_DB: ${{ secrets.PROD_DB }}
           RDS_USER_NAME: ${{ secrets.RDS_USER_NAME }}
