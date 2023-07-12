@@ -33,10 +33,10 @@ jobs:
       - name: Build with Gradle
         run: |
           ./gradlew clean build -Pprod -x test
-          echo "PROD_DB=$PROD_DB" >> .env.production
-          echo "RDS_USER_NAME=$RDS_USER_NAME" >> .env.production
-          echo "RDS_PW=$RDS_PW" >> .env.production
-          echo "JWT_TOKEN=$JWT_TOKEN" >> .env.production
+          echo "PROD_DB=$PROD_DB" >> .env
+          echo "RDS_USER_NAME=$RDS_USER_NAME" >> .env
+          echo "RDS_PW=$RDS_PW" >> .env
+          echo "JWT_TOKEN=$JWT_TOKEN" >> .env
         env:
           PROD_DB: ${{ secrets.PROD_DB }}
           RDS_USER_NAME: ${{ secrets.RDS_USER_NAME }}
