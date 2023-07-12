@@ -12,12 +12,12 @@ spring:
     host: localhost
     port: 6379
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${PROD_DB}
-    username: ${RDS_USER_NAME}
-    password: ${RDS_PW}
+    url: jdbc:mysql://jaetteoli.cswo92uen0rv.ap-northeast-2.rds.amazonaws.com/jiseop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: tjddls1920$
+
   jwt:
-    secret: ${JWT_TOKEN}
+    secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
   jpa:
     open-in-view: true
     hibernate:
