@@ -1,6 +1,10 @@
 server:
   port: ${SERVER_PORT:8080}
 spring:
+  security:
+    user:
+      name: user
+      password: 1234
   main:
     allow-circular-references: true
 
