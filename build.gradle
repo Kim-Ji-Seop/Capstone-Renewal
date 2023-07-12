@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
     id 'org.springframework.boot' version '2.7.13'
     id 'io.spring.dependency-management' version '1.1.0'
 }
@@ -10,6 +11,11 @@ version = '0.0.1-SNAPSHOT'
 java {
     sourceCompatibility = '11'
 }
+
+application {
+    mainClassName = 'univ.ulsan.capstone.CapstoneApplication'
+}
+
 
 configurations {
     compileOnly {
