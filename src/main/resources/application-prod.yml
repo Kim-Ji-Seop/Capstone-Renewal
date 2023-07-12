@@ -1,8 +1,10 @@
 server:
   port: 5000
 spring:
-  profiles:
-    active: prod
+  config:
+    activate:
+      on-profile: prod
+
   main:
     allow-circular-references: true
   mvc:
