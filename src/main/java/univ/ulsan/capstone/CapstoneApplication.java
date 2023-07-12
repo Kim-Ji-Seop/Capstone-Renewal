@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 @SpringBootApplication
 public class CapstoneApplication {
-
+    // 배포테스트 주석
     public static void main(String[] args) {
         SpringApplication.run(CapstoneApplication.class, args);
     }
