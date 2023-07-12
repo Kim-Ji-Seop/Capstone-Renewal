@@ -1,10 +1,6 @@
 server:
   port: 5000
 spring:
-  config:
-    activate:
-      on-profile: prod
-
   main:
     allow-circular-references: true
   mvc:
@@ -14,6 +10,7 @@ spring:
     host: localhost
     port: 6379
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://jaetteoli.cswo92uen0rv.ap-northeast-2.rds.amazonaws.com/jiseop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: admin
     password: tjddls1920$
