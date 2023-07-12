@@ -17,8 +17,6 @@ import univ.ulsan.capstone.global.config.BaseResponseStatus;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    @Value("${spring.profiles.active:}")
-    private String activeProfile;
 
     private final UserService userService;
 
@@ -37,10 +35,5 @@ public class UserController {
     @GetMapping("")
     public String helloWorld(){
         return "hello world";
-    }
-
-    @GetMapping("/profile")
-    public String profile(){
-        return activeProfile;
     }
 }
