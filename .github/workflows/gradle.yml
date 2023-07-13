@@ -31,12 +31,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: |
-          ./gradlew clean build -Pprod -x test
-          echo "PROD_DB=$PROD_DB" >> .env
-          echo "RDS_USER_NAME=$RDS_USER_NAME" >> .env
-          echo "RDS_PW=$RDS_PW" >> .env
-          echo "JWT_TOKEN=$JWT_TOKEN" >> .env
+        run: ./gradlew clean build -Pprod -x test
         env:
           PROD_DB: ${{ secrets.PROD_DB }}
           RDS_USER_NAME: ${{ secrets.RDS_USER_NAME }}
@@ -67,8 +62,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: capston-proj-ci-cd-test
-          environment_name: Capston-proj-ci-cd-test-env
+          application_name: Capston
+          environment_name: Capston-env
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
