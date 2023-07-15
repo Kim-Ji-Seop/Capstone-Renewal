@@ -76,5 +76,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
             
+            # Copy the docker-compose.yaml to EC2 instance
+            scp -i ${KEY} docker-compose.yaml ubuntu@${HOST}:/home/ubuntu/
             docker-compose -f docker-compose.yaml up -d
             docker image prune -f
