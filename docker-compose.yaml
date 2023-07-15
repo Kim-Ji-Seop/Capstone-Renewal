@@ -3,6 +3,8 @@ services:
   server:
     container_name: server
     image: kimjiseop/jaetteoli-server
+    expose:
+      - 8081
     ports:
       - 8081:8081
     restart: "always"
