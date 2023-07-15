@@ -11,9 +11,9 @@ spring:
     port: 6379
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_SCHEMA}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://jaetteoli.cswo92uen0rv.ap-northeast-2.rds.amazonaws.com:3306/jiseop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: tjddls1920$
   jwt:
     secret: ${JWT_TOKEN}
 
