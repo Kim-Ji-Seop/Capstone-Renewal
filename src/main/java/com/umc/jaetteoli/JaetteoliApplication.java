@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class JaetteoliApplication {
-    // 배포테스트 도커-1
+    // 배포테스트 도커-2
     public static void main(String[] args) {
         SpringApplication.run(JaetteoliApplication.class, args);
     }
