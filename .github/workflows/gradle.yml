@@ -51,7 +51,7 @@ jobs:
 
       ## docker compose up
       # HOST : 인스턴스 주소
-      # KEY : pem키값
+      # KEY : pem키값 - 전부 복사
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
