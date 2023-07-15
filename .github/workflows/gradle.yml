@@ -31,25 +31,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      ## create application-aws.yml
-      - name: make application-aws.yml
-        run: |
-          ## create application-aws.yml
-          cd ./src/main/resources
-          
-          # application-aws.yml 파일 생성
-          touch ./application-aws.yml
-          
-          # GitHub-Actions 에서 설정한 값을 application-aws.yml 파일에 쓰기
-          echo "${{ secrets.DATABASE }}" >> ./application-aws.yml
-        shell: bash
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
         run: ./gradlew clean build -x test
         env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
 
       ## 이미지 빌드 및 도커허브에 push
