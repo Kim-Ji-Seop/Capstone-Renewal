@@ -59,9 +59,18 @@ jobs:
           docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/jaetteoli-server .
           docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-server
 
+      - name: Copy docker-compose.yaml to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          source: "/github/workspace/docker-compose.yaml"
+          target: "/home/ubuntu/"
+
       ## docker compose up
       # HOST : 인스턴스 주소
-      # KEY : ssh값 - 전부 복사, % 제외
+      # KEY : rsa - 전부 복사, % 제외
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
@@ -76,7 +85,5 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
             
-            # Copy the docker-compose.yaml to EC2 instance
-            scp -i ${KEY} docker-compose.yaml ubuntu@${HOST}:/home/ubuntu/
             docker-compose -f docker-compose.yaml up -d
             docker image prune -f
