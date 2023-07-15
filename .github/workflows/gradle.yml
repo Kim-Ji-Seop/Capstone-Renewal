@@ -72,5 +72,5 @@ jobs:
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
-            docker-compose up -d
+            docker-compose -f ./docker-compose.yaml up -d
             docker image prune -f
