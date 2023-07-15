@@ -1,5 +1,5 @@
 server:
-  port: 5000
+  port: 8081
 spring:
   main:
     allow-circular-references: true
@@ -9,14 +9,12 @@ spring:
   redis:
     host: localhost
     port: 6379
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${PROD_DB}
-    username: ${RDS_USER_NAME}
-    password: ${RDS_PW}
-
+  config:
+    import:
+      - application-aws.yml
   jwt:
     secret: ${JWT_TOKEN}
+
   jpa:
     open-in-view: true
     hibernate:

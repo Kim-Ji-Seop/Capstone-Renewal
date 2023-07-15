@@ -39,3 +39,4 @@ out/
 ### Environment Variable ###
 .env
 application-dev.yml
+application-aws.yml

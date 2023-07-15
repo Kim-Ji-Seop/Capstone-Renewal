@@ -5,7 +5,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
-group = 'univ.ulsan'
+group = 'com.umc'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -13,7 +13,7 @@ java {
 }
 
 application {
-    mainClassName = 'univ.ulsan.capstone.CapstoneApplication'
+    mainClassName = 'com.umc.jaetteoli.JaetteoliApplication'
 }
 
 
@@ -31,13 +31,17 @@ jar {
     enabled = false
 }
 
+bootJar {
+    archiveBaseName.set('jaetteoli')
+    archiveVersion.set('0.0.1-SNAPSHOT')
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-//    implementation 'mysql:mysql-connector-java:8.0.26'
     implementation group:'mysql', name:'mysql-connector-java', version:'8.0.32'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
