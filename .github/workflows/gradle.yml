@@ -69,8 +69,12 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm -f $(docker ps -qa)
+            if [ "$(docker ps -qa)" ]; then
+              sudo docker rm -f $(docker ps -qa)
+            fi
+            
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
+            
             docker-compose -f docker-compose.yaml up -d
             docker image prune -f
