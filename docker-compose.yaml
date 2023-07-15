@@ -9,11 +9,8 @@ services:
 
   nginx:
     container_name: nginx
-    volumes:
-      - nginx_certs:/etc/letsencrypt/live
     image: kimjiseop/jaetteoli-nginx
     ports:
       - 80:80
-      - 443:443
     depends_on:
       - server
