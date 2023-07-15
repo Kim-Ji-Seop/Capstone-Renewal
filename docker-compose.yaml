@@ -1,7 +1,7 @@
 version: '3'
 services:
-  backend:
-    container_name: backend
+  server:
+    container_name: server
     image: kimjiseop/jaetteoli-server
     ports:
       - 8081:8081
@@ -13,4 +13,4 @@ services:
     ports:
       - 80:80
     depends_on:
-      - "backend"
+      - "server"

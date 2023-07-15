@@ -11,7 +11,7 @@ spring:
     port: 6379
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
+    url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_SCHEMA}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jwt:
@@ -20,7 +20,7 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
