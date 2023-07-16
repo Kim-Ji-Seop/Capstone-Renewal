@@ -11,7 +11,7 @@ spring:
     port: 6379
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://jaetteoli.cswo92uen0rv.ap-northeast-2.rds.amazonaws.com:3306/jiseop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://database-1.crqlyooh7jfa.ap-northeast-2.rds.amazonaws.com:3306/jiseop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: admin
     password: tjddls1920$
   jwt:
