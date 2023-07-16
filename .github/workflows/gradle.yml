@@ -98,12 +98,6 @@ jobs:
             
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
-            sudo docker pull certbot/certbot
-      
-            docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d server nginx
-      
-            # Remove and rerun certbot container
-            docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml down certbot
-            docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml run --rm certbot certonly --webroot -w /var/www/certbot -d www.jaetteoli.shop
             
+            docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d
             docker image prune -f
