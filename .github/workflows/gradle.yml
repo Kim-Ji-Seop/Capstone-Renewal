@@ -92,8 +92,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            chmod +x /home/ubuntu/init-letsencrypt.sh
-            /home/ubuntu/init-letsencrypt.sh
+            chmod +x /home/ubuntu/github/workspace/init-letsencrypt.sh
+            /home/ubuntu/github/workspace/init-letsencrypt.sh
 
       - name: Copy .env to EC2
         uses: appleboy/scp-action@master
