@@ -47,8 +47,14 @@ jobs:
       - name: server docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/jaetteoli-server .
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/jaetteoli-server .
           docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-server
+
+      - name: nginx docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx .
+          docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
 
       - name: Copy docker-compose.yaml to EC2
         uses: appleboy/scp-action@master
