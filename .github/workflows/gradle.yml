@@ -65,15 +65,23 @@ jobs:
           docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
 
 
-      - name: Copy docker-compose.yaml and .env to EC2
+      - name: Copy docker-compose.yaml to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
-          source: "/github/workspace/docker-compose.yaml", "/github/workspace/.env"
+          source: "/github/workspace/docker-compose.yaml"
           target: "/home/ubuntu/"
 
+      - name: Copy .env to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          source: "/github/workspace/.env"
+          target: "/home/ubuntu/"
       ## docker compose up
       # HOST : 인스턴스 주소
       # KEY : rsa - 전부 복사, % 제외
