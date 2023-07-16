@@ -99,5 +99,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
             
+            sudo cp -R /etc/letsencrypt/* /home/ubuntu/github/workspace/nginx/certbot/conf/
+            
             sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d
             docker image prune -f
