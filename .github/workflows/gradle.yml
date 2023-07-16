@@ -35,13 +35,21 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
+        run: ./gradlew clean build -x test
         env:
           DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
           DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
-        run: ./gradlew clean build -x test
+
+      - name: Create env file
+        run: |
+          echo DB_ENDPOINT=${{ secrets.DB_ENDPOINT }} >> .env
+          echo DB_SCHEMA=${{ secrets.DB_SCHEMA }} >> .env
+          echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+          echo JWT_TOKEN=${{ secrets.JWT_TOKEN }} >> .env
 
       ## 이미지 빌드 및 도커허브에 push
       - name: server docker build and push

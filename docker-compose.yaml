@@ -8,6 +8,8 @@ services:
     ports:
       - 8081:8081
     restart: "always"
+    env_file:
+      - .env
 
   nginx:
     container_name: nginx
