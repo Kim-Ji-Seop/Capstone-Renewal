@@ -70,7 +70,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
-          source: "/github/workspace/docker-compose.yaml"
+          source: "/github/workspace/docker-compose.yaml", "/github/workspace/.env"
           target: "/home/ubuntu/"
 
       ## docker compose up
