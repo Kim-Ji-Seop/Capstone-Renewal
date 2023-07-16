@@ -34,6 +34,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Grant execute permission for renew-script.sh
+        run: chmod +x ./renew-script.sh
+
       - name: Build with Gradle
         run: ./gradlew clean build -x test
         env:
@@ -82,6 +85,15 @@ jobs:
           key: ${{ secrets.KEY }}
           source: "/github/workspace/.env"
           target: "/home/ubuntu/"
+
+      - name: Copy renew-script.sh to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          source: "/github/workspace/renew-script.sh"
+          target: "/home/ubuntu/"
       ## docker compose up
       # HOST : 인스턴스 주소
       # KEY : rsa - 전부 복사, % 제외
@@ -100,6 +112,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
             
             sudo cp -R /etc/letsencrypt/* /home/ubuntu/github/workspace/nginx/certbot/conf/
+            sudo chmod +x /home/ubuntu/renew-script.sh
             
             sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d
             docker image prune -f
