@@ -26,6 +26,7 @@ services:
 
   certbot: # 추가: Certbot 컨테이너를 정의합니다.
     image: certbot/certbot
+    restart: unless-stopped
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
