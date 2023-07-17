@@ -35,4 +35,9 @@ public class UserController {
     public String helloWorld(){
         return "hello world";
     }
+
+    @GetMapping("/test")
+    public String test(){
+        return "Test Url";
+    }
 }
