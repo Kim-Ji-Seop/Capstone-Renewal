@@ -2,10 +2,7 @@ package com.umc.jaetteoli.domain.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.umc.jaetteoli.domain.user.dto.PostSignupReq;
 import com.umc.jaetteoli.domain.user.dto.PostSignupRes;
 import com.umc.jaetteoli.domain.user.service.UserService;
@@ -15,6 +12,7 @@ import com.umc.jaetteoli.global.config.BaseResponseStatus;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
