@@ -28,8 +28,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //jwt 사용
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/web/test").permitAll()
-                .anyRequest().authenticated() // 이밖에 모든 요청은 인증이 필요
+                .anyRequest().permitAll() // 모든 요청 허용
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -13,8 +13,8 @@ public class CustomUserDetailService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return sellerRepository.findByEmail(email)
+    public UserDetails loadUserByUsername(String uid) throws UsernameNotFoundException {
+        return sellerRepository.findByUid(uid)
                 .orElseThrow(() -> new UsernameNotFoundException("해당하는 유저를 찾을 수 없습니다."));
     }
 }

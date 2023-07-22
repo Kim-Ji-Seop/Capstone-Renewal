@@ -32,9 +32,6 @@ public class Seller extends BaseEntity implements UserDetails {
     @Column(name = "uid", nullable = false, length = 45)
     private String uid;
 
-    @Column(name = "salt", length = 45)
-    private String salt;
-
     @Column(name = "password", nullable = false, length = 100)
     private String password;
 

@@ -1,4 +1,4 @@
-package com.umc.jaetteoli.global.config;
+package com.umc.jaetteoli.global.config.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.umc.jaetteoli.global.config.BaseResponseStatus.SUCCESS;
+import static com.umc.jaetteoli.global.config.error.BaseResponseStatus.SUCCESS;
 
 @Getter
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public class BaseResponse<T> {//BaseResponse 객체를 사용할때 성공, 실�
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 
-    // 요청에 성공한 경우
+    // 성공
     public BaseResponse(T result) {
         this.isSuccess = SUCCESS.isSuccess();
         this.message = SUCCESS.getMessage();
@@ -27,11 +27,10 @@ public class BaseResponse<T> {//BaseResponse 객체를 사용할때 성공, 실�
         this.result = result;
     }
 
-    // 요청에 실패한 경우
-    public BaseResponse(BaseResponseStatus status) {
-        this.isSuccess = status.isSuccess();
-        this.message = status.getMessage();
-        this.code = status.getCode();
+    public BaseResponse(ErrorCode errorCode) {
+        this.isSuccess = false;
+        this.message = errorCode.getErrorMessage();
+        this.code= errorCode.getCode();
     }
 
     public BaseResponse(String message, int code) {
