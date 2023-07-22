@@ -14,13 +14,14 @@ import java.time.LocalDateTime;
 public class BaseEntity {
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     @Enumerated(value = EnumType.STRING)
-    private Status status= Status.valueOf(Status.ACTIVE.toString());
+    protected Status status= Status.valueOf(Status.ACTIVE.toString());
+
 
     public enum Status {
         ACTIVE,
