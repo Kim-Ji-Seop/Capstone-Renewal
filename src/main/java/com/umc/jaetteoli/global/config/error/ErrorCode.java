@@ -13,12 +13,12 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN,  403,"권한이 없습니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, 404,"대상을 찾을 수 없습니다."),
     // [Seller] 회원가입
-    INVALID_UID_FORMAT(HttpStatus.BAD_REQUEST,400,"아이디 정규 표현식 예외입니다."),
-    INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,400,"비밀번호 정규 표현식 예외입니다."),
-    INVALID_BIRTH_FORMAT(HttpStatus.BAD_REQUEST,400,"생년월일 정규 표현식 예외입니다."),
-    INVALID_PHONE_NUM_FORMAT(HttpStatus.BAD_REQUEST,400,"핸드폰번호 정규 표현식 예외입니다."),
-    ID_ALREADY_EXISTS(HttpStatus.CONFLICT,409,"중복된 아이디 입니다."),
-    PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,500,"비밀번호 암호화에 실패했습니다."),
+    INVALID_UID_FORMAT(HttpStatus.BAD_REQUEST,410,"아이디 정규 표현식 예외입니다."),
+    INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,411,"비밀번호 정규 표현식 예외입니다."),
+    INVALID_BIRTH_FORMAT(HttpStatus.BAD_REQUEST,412,"생년월일 정규 표현식 예외입니다."),
+    INVALID_PHONE_NUM_FORMAT(HttpStatus.BAD_REQUEST,413,"핸드폰번호 정규 표현식 예외입니다."),
+    ID_ALREADY_EXISTS(HttpStatus.CONFLICT,414,"중복된 아이디 입니다."),
+    PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,510,"비밀번호 암호화에 실패했습니다."),
 
 
     // [User] 로그인
@@ -38,7 +38,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED,403,"인가되지 않은 사용자입니다."),
 
     // Database 예외
-    DATABASE_ERROR(INTERNAL_SERVER_ERROR,500,"데이터베이스 오류입니다.");
+    DATABASE_ERROR(INTERNAL_SERVER_ERROR,511,"데이터베이스 오류입니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
