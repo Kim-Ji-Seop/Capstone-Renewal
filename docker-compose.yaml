@@ -8,6 +8,8 @@ services:
     ports:
       - 8081:8081
     restart: "always"
+    environment:
+      TZ: "Asia/Seoul" # timezone 설정
     env_file:
       - .env
 
@@ -16,6 +18,8 @@ services:
     image: kimjiseop/jaetteoli-web
     expose:
       - 3000
+    environment:
+      TZ: "Asia/Seoul" # timezone 설정
 
   nginx:
     container_name: nginx
