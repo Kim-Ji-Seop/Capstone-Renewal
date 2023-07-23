@@ -2,12 +2,10 @@ package com.umc.jaetteoli.global.config.error;
 
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,9 +14,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.servlet.http.HttpServletRequest;
 
 import java.net.BindException;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.umc.jaetteoli.global.config.error.ErrorCode.*;
 

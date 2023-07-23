@@ -5,15 +5,11 @@ import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerRes;
 import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
-import com.umc.jaetteoli.global.util.BCrypt;
-import com.umc.jaetteoli.global.util.SHA256;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -93,8 +89,6 @@ public class SellerService {
             System.out.println(e);
             throw new BaseException(DATABASE_ERROR);
         }
-
-
     }
 
     /**

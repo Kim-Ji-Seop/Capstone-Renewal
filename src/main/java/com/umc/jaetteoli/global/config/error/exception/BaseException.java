@@ -1,8 +1,6 @@
 package com.umc.jaetteoli.global.config.error.exception;
 
-import com.umc.jaetteoli.global.config.error.BaseResponseStatus;
 import com.umc.jaetteoli.global.config.error.ErrorCode;
-import org.springframework.http.HttpStatus;
 
 public class BaseException extends RuntimeException {
     private final ErrorCode errorCode;
