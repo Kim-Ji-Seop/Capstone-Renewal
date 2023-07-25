@@ -1,5 +1,7 @@
 package com.umc.jaetteoli.domain.web.seller;
 
+import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyReq;
+import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyRes;
 import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerReq;
 import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerRes;
 import com.umc.jaetteoli.domain.web.seller.service.SellerService;
@@ -29,9 +31,21 @@ public class SellerController {
         }
     }
 
+    /**
+     * 회원가입 api sheet num.1
+     * @param postSignUpSellerReq
+     * @return BaseResponse<>(postSignUpSellerRes)
+     */
     @PostMapping("/jat/sellers")
     public ResponseEntity<BaseResponse<PostSignUpSellerRes>> signUp(@RequestBody PostSignUpSellerReq postSignUpSellerReq) {
         PostSignUpSellerRes postSignUpSellerRes = sellerService.signUp(postSignUpSellerReq);
         return ResponseEntity.ok(new BaseResponse<>(postSignUpSellerRes));
+    }
+
+
+    @PostMapping("/jat/sellers/authy")
+    public ResponseEntity<BaseResponse<PostSignUpAuthyRes>> userAuthy(@RequestBody PostSignUpAuthyReq postSignUpAuthyReq) {
+        PostSignUpAuthyRes postSignUpAuthyRes = sellerService.userAuthy(postSignUpAuthyReq);
+        return ResponseEntity.ok(new BaseResponse<>(postSignUpAuthyRes));
     }
 }

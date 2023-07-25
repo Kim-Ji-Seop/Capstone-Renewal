@@ -1,13 +1,16 @@
 package com.umc.jaetteoli.domain.web.seller.entity;
 
+import com.umc.jaetteoli.global.config.security.Role;
 import lombok.*;
 import com.umc.jaetteoli.global.config.BaseEntity;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Getter
@@ -66,9 +69,12 @@ public class Seller extends BaseEntity implements UserDetails {
     @ColumnDefault("0")
     private int callCheck;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getKey());
+        return Collections.singletonList(authority);
     }
 
     @Override

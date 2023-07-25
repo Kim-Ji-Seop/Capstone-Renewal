@@ -28,7 +28,14 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //jwt 사용
                 .and()
                 .authorizeRequests()
-                .anyRequest().permitAll() // 모든 요청 허용
+                // 판매자 회원관련 API는 비밀번호 재설정빼고 토큰 필요 X
+                .antMatchers("/api/web/jat/sellers/pw-restore").hasRole("SELLER")
+                .antMatchers("/api/web/jat/sellers/**").permitAll()
+                // 그 외 웹 요청 판매자 권한으로 들어와야 함
+                .antMatchers("api/web/jat/**").hasRole("SELLER")
+                // app 부분 들어가면 전체 허용 해제 해야함
+                .antMatchers("/api/app/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -1,10 +1,13 @@
 package com.umc.jaetteoli.domain.web.seller.service;
 
+import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyReq;
+import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyRes;
 import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerReq;
 import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerRes;
 import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
+import com.umc.jaetteoli.global.config.security.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -68,6 +71,7 @@ public class SellerService {
                     .smsCheck(postSignUpSellerReq.getSmsCheck())
                     .emailCheck(postSignUpSellerReq.getEmailCheck())
                     .callCheck(postSignUpSellerReq.getCallCheck())
+                    .role(Role.SELLER)
                     .build();
             // 3. 유저 insert
             newSeller = sellerRepository.save(newSeller);
@@ -103,5 +107,35 @@ public class SellerService {
     public String convertTimestampToString(LocalDateTime localDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         return dateFormat.format(localDateTime);
+    }
+
+    public PostSignUpAuthyRes userAuthy(PostSignUpAuthyReq postSignUpAuthyReq) throws BaseException {
+//        try{
+//            // 4) 랜덤 인증번호 생성 (번호)
+//            Random rand  = new Random();
+//            String certificationNum = "";
+//            for(int i=0; i<6; i++) {
+//                String ran = Integer.toString(rand.nextInt(10));
+//                certificationNum+=ran;
+//            }
+//
+//            // 인증 메시지 생성
+//            Message message = new Message();
+//            message.setFrom("01043753181");
+//            message.setTo(signUpAuthy.getPhoneNum());
+//            message.setText("회원가입 본인인증 확인입니다.\n["+certificationNum+"]");
+//
+//            // coolSMS API 사용하여 사용자 핸드폰에 전송
+//            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+//            log.info("coolSMS API요청 :{}", response);
+//
+//            // DB에 전송 인증정보 저장
+//            int smsSendRes = smsDao.smsAuthy(signUpAuthy, certificationNum, "S");
+//            return new PostSignUpAuthyRes(smsSendRes);
+//
+//        }catch(Exception exception){
+//            throw new BaseException(COOLSMS_API_ERROR); //  5010 : SMS 인증번호 발송을 실패하였습니다.
+//        }
+        return null;
     }
 }
