@@ -1,9 +1,6 @@
 package com.umc.jaetteoli.domain.web.seller.service;
 
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyReq;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyRes;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerReq;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerRes;
+import com.umc.jaetteoli.domain.web.seller.dto.*;
 import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;

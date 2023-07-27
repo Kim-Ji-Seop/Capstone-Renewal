@@ -40,3 +40,6 @@ out/
 .env
 application-dev.yml
 application-aws.yml
+
+### Secret ###
+src/main/java/com/umc/jaetteoli/global/secret

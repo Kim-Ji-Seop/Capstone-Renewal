@@ -1,13 +1,11 @@
 package com.umc.jaetteoli.domain.web.seller;
 
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyReq;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpAuthyRes;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerReq;
-import com.umc.jaetteoli.domain.web.seller.dto.PostSignUpSellerRes;
+import com.umc.jaetteoli.domain.web.seller.dto.*;
 import com.umc.jaetteoli.domain.web.seller.service.SellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
 import com.umc.jaetteoli.global.config.error.BaseResponse;
@@ -47,5 +45,11 @@ public class SellerController {
     public ResponseEntity<BaseResponse<PostSignUpAuthyRes>> userAuthy(@RequestBody PostSignUpAuthyReq postSignUpAuthyReq) {
         PostSignUpAuthyRes postSignUpAuthyRes = sellerService.userAuthy(postSignUpAuthyReq);
         return ResponseEntity.ok(new BaseResponse<>(postSignUpAuthyRes));
+    }
+
+    @PostMapping("/jat/sellers/login")
+    public ResponseEntity<BaseResponse<PostLoginRes>> login(@RequestBody PostLoginReq postLoginReq){
+        PostLoginRes postLoginRes = sellerService.login(postLoginReq);
+        return ResponseEntity.ok(new BaseResponse<>(postLoginRes));
     }
 }

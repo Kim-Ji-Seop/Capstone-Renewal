@@ -79,11 +79,11 @@ public class Seller extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return this.sellerIdx.toString();
     }
     @Override
     public String getPassword() {
-        return null;
+        return this.password;
     }
     @Override
     public boolean isAccountNonExpired() {

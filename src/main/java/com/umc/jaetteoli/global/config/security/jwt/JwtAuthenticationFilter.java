@@ -16,6 +16,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
+
     // 클라이언트 요청 시 JWT 인증을 하기 위해 설치하는 커스텀 필터로 UsernamePasswordAuthenticationFilter 이전에 실행
 
     // Username + Password를 통한 인증을 Jwt를 통해 수행한다는 것이다.
@@ -29,9 +30,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 1. Request Header 에서 JWT 토큰 추출
         String token = resolveToken((HttpServletRequest) request);
 
-        // 2. validateToken 으로 토큰 유효성 검사
+        // 2. validateToken 으로 토큰 유효성 검사 ( 기간이 유효한 토큰인지? )
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext 에 저장
+            // 토큰이 유효할 경우 토큰에서 유저정보를 받아온다
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -40,10 +41,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     // Request Header 에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+        String bearerToken = request.getHeader("X-ACCESS-TOKEN");
+        // StringUtils.hasText(bearerToken): bearerToken에 값이 있는지 확인
+        // bearerToken.startsWith("Bearer"): "X-ACCESS-TOKEN" 헤더의 값이 "Bearer"로 시작하는지 확인
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
             return bearerToken.substring(7);
         }
         return null;
     }
 }
+

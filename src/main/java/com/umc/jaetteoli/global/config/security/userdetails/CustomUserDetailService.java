@@ -12,9 +12,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
     private PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String uid) throws UsernameNotFoundException {
-        return sellerRepository.findByUid(uid)
+    @Override // 유저PK를 통한 사용자 검색
+    public UserDetails loadUserByUsername(String userIdx) throws UsernameNotFoundException {
+        return sellerRepository.findById(Long.parseLong(userIdx))
                 .orElseThrow(() -> new UsernameNotFoundException("해당하는 유저를 찾을 수 없습니다."));
     }
 }

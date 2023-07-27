@@ -1,5 +1,6 @@
 package com.umc.jaetteoli.domain.web.seller.dto;
 
+import com.umc.jaetteoli.global.config.security.jwt.TokenDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostLoginRes {
-    private String jwt;
+    private TokenDto token;
     private int sellerIdx;
     private String name;
     private int first_login;
