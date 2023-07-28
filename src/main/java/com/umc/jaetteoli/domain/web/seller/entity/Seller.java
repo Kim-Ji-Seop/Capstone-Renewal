@@ -79,7 +79,7 @@ public class Seller extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.sellerIdx.toString();
+        return this.uid;
     }
     @Override
     public String getPassword() {
@@ -87,21 +87,21 @@ public class Seller extends BaseEntity implements UserDetails {
     }
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

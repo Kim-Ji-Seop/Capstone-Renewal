@@ -5,23 +5,33 @@ import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
 import com.umc.jaetteoli.global.config.security.Role;
+import com.umc.jaetteoli.global.config.security.jwt.JwtTokenProvider;
+import com.umc.jaetteoli.global.config.security.jwt.TokenDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import static com.umc.jaetteoli.global.config.error.ErrorCode.*;
 import static com.umc.jaetteoli.global.util.Regex.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SellerService {
 
     private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional(rollbackFor = BaseException.class)
     public PostSignUpSellerRes signUp(PostSignUpSellerReq postSignUpSellerReq) throws BaseException {
@@ -87,7 +97,7 @@ public class SellerService {
 
             return checkSeller;
         }catch (Exception e){
-            System.out.println(e);
+            //System.out.println(e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -134,5 +144,33 @@ public class SellerService {
 //            throw new BaseException(COOLSMS_API_ERROR); //  5010 : SMS 인증번호 발송을 실패하였습니다.
 //        }
         return null;
+    }
+
+    public PostLoginRes login(PostLoginReq postLoginReq) throws BaseException {
+        // 1. 빈값확인, 정규식확인
+        if(postLoginReq.getUid().length()==0 || postLoginReq.getPassword().length()==0){
+            throw new BaseException(BAD_REQUEST);
+        }
+        // 2. 회원이 있는지 검색 (uid로 검색)
+        Optional<Seller> optionalSeller = sellerRepository.findByUid(postLoginReq.getUid());
+        //System.out.println(optionalSeller.get().getUsername()+" / "+optionalSeller.get().getPassword());
+        if(!optionalSeller.isPresent()){
+            throw new BaseException(FAILED_TO_LOGIN);
+        }
+        Seller seller = optionalSeller.get();
+
+        // 3. 입력으로 들어온 password 암호화 및 비교
+        if(!passwordEncoder.matches(postLoginReq.getPassword(), seller.getPassword())) {
+            throw new BaseException(FAILED_TO_LOGIN);
+        }
+        // 4. jwt 토큰 발급
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(postLoginReq.getUid(), postLoginReq.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        TokenDto token = jwtTokenProvider.generateToken(authentication,seller.getSellerIdx());
+
+        // 5. PostLoginRes 반환
+        PostLoginRes response = new PostLoginRes(token, seller.getSellerIdx(), seller.getName(), seller.getFirstLogin(), seller.getMenuRegister(), null, null);
+
+        return response;
     }
 }

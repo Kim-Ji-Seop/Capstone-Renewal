@@ -32,25 +32,25 @@ public class JwtTokenProvider {
     }
 
     // 토큰 유효시간
-    private static final int JWT_EXPIRATION_MS = 604800000;
+    private static final int JWT_EXPIRATION_MS = 604800000; // 유효시간 : 일주일
 
     // jwt 토큰 생성
-    public TokenDto generateToken(Authentication authentication) {
+    public TokenDto generateToken(Authentication authentication,Long userIdx) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
-
         String accessToken=Jwts.builder()
-                .setSubject(authentication.getName()) // 사용자
+                .setSubject(username) // 사용자
                 .claim("auth",authorities)
+                .claim("userIdx",userIdx)
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
-
         String refreshToken=Jwts.builder()
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(expiryDate) // 만료 시간 세팅

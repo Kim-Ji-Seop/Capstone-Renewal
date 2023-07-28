@@ -22,7 +22,7 @@ public enum ErrorCode {
 
 
     // [User] 로그인
-
+    FAILED_TO_LOGIN(HttpStatus.UNAUTHORIZED,415,"없는 아이디이거나 비밀번호가 틀렸습니다"),
     TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, 403, "JWT Token이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,  403,"유효하지 않은 JWT Token 입니다."),
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,  403,"만료된 Access Token 입니다."),

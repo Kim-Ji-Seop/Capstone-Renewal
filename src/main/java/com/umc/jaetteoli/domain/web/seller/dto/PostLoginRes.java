@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostLoginRes {
     private TokenDto token;
-    private int sellerIdx;
+    private Long sellerIdx;
     private String name;
     private int first_login;
     private int menu_register;
