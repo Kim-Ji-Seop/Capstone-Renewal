@@ -34,6 +34,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Create SmsSecret file
+        run: |
+          echo "package com.umc.jaetteoli.global.secret;" >> SmsSecret.java
+          echo "public class SmsSecret {" >> SmsSecret.java
+          echo "    public static final String API_KEY = \"${{ secrets.SMS_API_KEY }}\";" >> SmsSecret.java
+          echo "    public static final String SECRET = \"${{ secrets.SMS_SECRET }}\";" >> SmsSecret.java
+          echo "}" >> SmsSecret.java
+    
 
       - name: Build with Gradle
         run: ./gradlew clean build -x test
