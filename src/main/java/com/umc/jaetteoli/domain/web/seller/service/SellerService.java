@@ -3,12 +3,21 @@ package com.umc.jaetteoli.domain.web.seller.service;
 import com.umc.jaetteoli.domain.web.seller.dto.*;
 import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
+import com.umc.jaetteoli.domain.web.sms.entity.Sms;
+import com.umc.jaetteoli.domain.web.sms.repository.SmsRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
 import com.umc.jaetteoli.global.config.security.Role;
 import com.umc.jaetteoli.global.config.security.jwt.JwtTokenProvider;
 import com.umc.jaetteoli.global.config.security.jwt.TokenDto;
+import com.umc.jaetteoli.global.secret.SmsSecret;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -19,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Random;
 
 import static com.umc.jaetteoli.global.config.error.ErrorCode.*;
 import static com.umc.jaetteoli.global.util.Regex.*;
@@ -32,7 +42,8 @@ public class SellerService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(SmsSecret.API_KEY,SmsSecret.SECRET,"https://api.coolsms.co.kr");
+    private final SmsRepository smsRepository;
     @Transactional(rollbackFor = BaseException.class)
     public PostSignUpSellerRes signUp(PostSignUpSellerReq postSignUpSellerReq) throws BaseException {
         // 1. Request값 검사 (빈값여부,정규식 일치 검사)
@@ -116,36 +127,57 @@ public class SellerService {
         return dateFormat.format(localDateTime);
     }
 
+    @Transactional(rollbackFor = BaseException.class)
     public PostSignUpAuthyRes userAuthy(PostSignUpAuthyReq postSignUpAuthyReq) throws BaseException {
-//        try{
-//            // 4) 랜덤 인증번호 생성 (번호)
-//            Random rand  = new Random();
-//            String certificationNum = "";
-//            for(int i=0; i<6; i++) {
-//                String ran = Integer.toString(rand.nextInt(10));
-//                certificationNum+=ran;
-//            }
-//
-//            // 인증 메시지 생성
-//            Message message = new Message();
-//            message.setFrom("01043753181");
-//            message.setTo(signUpAuthy.getPhoneNum());
-//            message.setText("회원가입 본인인증 확인입니다.\n["+certificationNum+"]");
-//
-//            // coolSMS API 사용하여 사용자 핸드폰에 전송
-//            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
-//            log.info("coolSMS API요청 :{}", response);
-//
-//            // DB에 전송 인증정보 저장
-//            int smsSendRes = smsDao.smsAuthy(signUpAuthy, certificationNum, "S");
-//            return new PostSignUpAuthyRes(smsSendRes);
-//
-//        }catch(Exception exception){
-//            throw new BaseException(COOLSMS_API_ERROR); //  5010 : SMS 인증번호 발송을 실패하였습니다.
-//        }
-        return null;
-    }
+        try{
+            // 랜덤 인증번호 생성 (번호)
+            Random rand  = new Random();
+            String certificationNum = "";
+            for(int i=0; i<6; i++) {
+                String ran = Integer.toString(rand.nextInt(10));
+                certificationNum+=ran;
+            }
 
+            // 인증 메시지 생성
+            Message message = new Message();
+            message.setFrom("01043753181");
+            message.setTo(postSignUpAuthyReq.getPhoneNum());
+            message.setText("회원가입 본인인증 확인입니다.\n["+certificationNum+"]");
+
+            // coolSMS API 사용하여 사용자 핸드폰에 전송
+            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+            log.info("coolSMS API요청 :{}", response);
+
+        }catch(Exception exception){
+            throw new BaseException(COOLSMS_API_ERROR); //  5010 : SMS 인증번호 발송을 실패하였습니다.
+        }
+            // DB에 전송 인증정보 저장
+        try{
+            log.info("1");
+            Sms newSms = Sms.builder()
+                    .phone(postSignUpAuthyReq.getPhoneNum())
+                    .name(postSignUpAuthyReq.getName())
+                    .uid(postSignUpAuthyReq.getBirth())
+                    .certificationNum(postSignUpAuthyReq.getCertificationNum())
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .status(Sms.Status.SIGN_UP)
+                    .build();
+            log.info("2");
+            log.info("what? : "+newSms.toString());
+            // 3. 유저 insert
+            newSms = smsRepository.save(newSms);
+            log.info("3");
+            // 4. 방금 insert한 유저 반환
+            PostSignUpAuthyRes checkSms = new PostSignUpAuthyRes(Math.toIntExact(newSms.getSmsIdx()));
+            log.info("4");
+            return checkSms;
+        }catch (Exception e){
+            System.out.println(e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    @Transactional(rollbackFor = BaseException.class)
     public PostLoginRes login(PostLoginReq postLoginReq) throws BaseException {
         // 1. 빈값확인, 정규식확인
         if(postLoginReq.getUid().length()==0 || postLoginReq.getPassword().length()==0){
