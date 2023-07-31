@@ -18,6 +18,7 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -37,13 +39,27 @@ import static com.umc.jaetteoli.global.util.Regex.*;
 @Slf4j
 @RequiredArgsConstructor
 public class SellerService {
+    @Value("${sms.apiKey}")
+    private String apiKey;
 
+    @Value("${sms.secret}")
+    private String secret;
     private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(SmsSecret.API_KEY,SmsSecret.SECRET,"https://api.coolsms.co.kr");
+    private DefaultMessageService messageService;
     private final SmsRepository smsRepository;
+
+    /**
+     * @PostConstruct 애너테이션이 붙은 메서드는 Spring이 Bean을 초기화한 후,
+     * 즉 모든 의존성 주입이 완료된 후에 호출된다.
+     * 이 방법을 사용하면 apiKey와 secret 값이 설정된 후에 NurigoApp.INSTANCE.initialize를 호출할 수 있다.
+     */
+    @PostConstruct
+    public void init() {
+        this.messageService = NurigoApp.INSTANCE.initialize(apiKey,secret,"https://api.coolsms.co.kr");
+    }
     @Transactional(rollbackFor = BaseException.class)
     public PostSignUpSellerRes signUp(PostSignUpSellerReq postSignUpSellerReq) throws BaseException {
         // 1. Request값 검사 (빈값여부,정규식 일치 검사)

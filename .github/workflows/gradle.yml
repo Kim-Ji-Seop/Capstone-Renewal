@@ -34,15 +34,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Create SmsSecret file
-        run: |
-          echo "package com.umc.jaetteoli.global.secret;" >> SmsSecret.java
-          echo "public class SmsSecret {" >> SmsSecret.java
-          echo "    public static final String API_KEY = \"${{ secrets.SMS_API_KEY }}\";" >> SmsSecret.java
-          echo "    public static final String SECRET = \"${{ secrets.SMS_SECRET }}\";" >> SmsSecret.java
-          echo "}" >> SmsSecret.java
-    
-
       - name: Build with Gradle
         run: ./gradlew clean build -x test
         env:
@@ -51,6 +42,8 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
+          SMS_API_KEY: ${{ secrets.SMS_API_KEY }}
+          SMS_SECRET: ${{ secrets.SMS_SECRET }}
 
       - name: Create env file
         run: |
@@ -59,6 +52,8 @@ jobs:
           echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
           echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
           echo JWT_TOKEN=${{ secrets.JWT_TOKEN }} >> .env
+          echo SMS_API_KEY=${{ secrets.SMS_API_KEY }} >> .env
+          echo SMS_SECRET=${{ secrets.SMS_SECRET }} >> .env
 
       ## 이미지 빌드 및 도커허브에 push
       - name: server docker build and push
