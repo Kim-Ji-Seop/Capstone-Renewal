@@ -1,5 +1,6 @@
 package com.umc.jaetteoli.global.config.security;
 
+import com.umc.jaetteoli.global.config.security.jwt.JwtAuthenticationEntryPoint;
 import com.umc.jaetteoli.global.config.security.jwt.JwtAuthenticationFilter;
 import com.umc.jaetteoli.global.config.security.jwt.JwtTokenProvider;
 import com.umc.jaetteoli.global.config.security.userdetails.CustomUserDetailService;
@@ -7,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
     private final CustomUserDetailService customUserDetailService;
@@ -31,6 +35,12 @@ public class SecurityConfig {
         auth.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,6 +48,8 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //jwt 사용
+                .and()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
                 // 판매자 회원관련 API는 비밀번호 재설정빼고 토큰 필요 X
@@ -50,6 +62,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
     @Bean

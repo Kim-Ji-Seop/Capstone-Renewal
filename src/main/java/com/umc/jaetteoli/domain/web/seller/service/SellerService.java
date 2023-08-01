@@ -17,6 +17,7 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -122,7 +123,6 @@ public class SellerService {
 
             return checkSeller;
         }catch (Exception e){
-            //System.out.println(e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -167,7 +167,6 @@ public class SellerService {
         }
             // DB에 전송 인증정보 저장
         try{
-            log.info("1");
             Sms newSms = Sms.builder()
                     .phone(postSignUpAuthyReq.getPhoneNum())
                     .name(postSignUpAuthyReq.getName())
@@ -177,20 +176,17 @@ public class SellerService {
                     .updated(LocalDateTime.now())
                     .status(Sms.Status.SIGN_UP)
                     .build();
-            log.info("2");
-            log.info("what? : "+newSms.toString());
             // 3. 유저 insert
             newSms = smsRepository.save(newSms);
-            log.info("3");
             // 4. 방금 insert한 유저 반환
-            PostSignUpAuthyRes checkSms = new PostSignUpAuthyRes(Math.toIntExact(newSms.getSmsIdx()));
-            log.info("4");
-            return checkSms;
+            return new PostSignUpAuthyRes(Math.toIntExact(newSms.getSmsIdx()));
         }catch (Exception e){
-            System.out.println(e);
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
+
     @Transactional(rollbackFor = BaseException.class)
     public PostLoginRes login(PostLoginReq postLoginReq) throws BaseException {
         // 1. 빈값확인, 정규식확인
@@ -209,14 +205,20 @@ public class SellerService {
         if(!passwordEncoder.matches(postLoginReq.getPassword(), seller.getPassword())) {
             throw new BaseException(FAILED_TO_LOGIN);
         }
-        // 4. jwt 토큰 발급
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(postLoginReq.getUid(), postLoginReq.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        TokenDto token = jwtTokenProvider.generateToken(authentication,seller.getSellerIdx());
+        try{
+            // 4. jwt 토큰 발급
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(postLoginReq.getUid(), postLoginReq.getPassword());
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            TokenDto token = jwtTokenProvider.generateToken(authentication,seller.getSellerIdx());
 
-        // 5. PostLoginRes 반환
-        PostLoginRes response = new PostLoginRes(token, seller.getSellerIdx(), seller.getName(), seller.getFirstLogin(), seller.getMenuRegister(), null, null);
+            // 5. PostLoginRes 반환
+            PostLoginRes response = new PostLoginRes(token, seller.getSellerIdx(), seller.getName(), seller.getFirstLogin(), seller.getMenuRegister(), null, null);
 
-        return response;
+            return response;
+
+        }catch (BadCredentialsException e){
+            throw new BaseException(FAIL_AUTHENTICATION);
+        }
+
     }
 }

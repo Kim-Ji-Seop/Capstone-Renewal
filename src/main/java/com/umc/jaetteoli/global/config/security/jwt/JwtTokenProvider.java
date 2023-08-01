@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.Keys;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,8 +27,9 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
-
-    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey){
+    private final RedisTemplate<String, Object> redisTemplate;
+    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey, RedisTemplate<String, Object> redisTemplate){
+        this.redisTemplate = redisTemplate;
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
         this.key = Keys.hmacShaKeyFor(secretByteKey);
     }
@@ -56,7 +59,13 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate) // 만료 시간 세팅
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
-
+        // redis에 저장
+        redisTemplate.opsForValue().set(
+                authentication.getName(),
+                refreshToken,
+                JWT_EXPIRATION_MS,
+                TimeUnit.MILLISECONDS
+        );
         return TokenDto.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
