@@ -98,11 +98,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            if [ "$(docker ps -qa)" ]; then
-              sudo docker rm -f $(docker ps -qa)
-            fi
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-web
             sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
-            sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d
+            sudo docker-compose -f /home/ubuntu/docker-compose.yaml down
+            sudo docker-compose -f /home/ubuntu/docker-compose.yaml up -d --force-recreate
             docker image prune -f

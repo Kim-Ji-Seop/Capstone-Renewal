@@ -22,6 +22,8 @@ services:
     hostname: redis
     ports:
       - 6379:6379
+    volumes:
+      - redis-data:/data
 
   web:
     container_name: web
@@ -56,3 +58,6 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  redis-data:
