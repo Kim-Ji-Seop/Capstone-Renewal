@@ -61,12 +61,9 @@ public class SellerController {
     @GetMapping("/reissue")
     public ResponseEntity<BaseResponse<PostLoginRes>> reissue(HttpServletRequest request) throws JsonProcessingException {
 
-        System.out.println("reissue");
         System.out.println(request.getHeader("X-ACCESS-TOKEN"));
         String jwtToken=jwtAuthenticationFilter.resolveToken(request);
-        System.out.println(jwtToken);
         String userUid=jwtTokenProvider.getUserUidFromJWT(jwtToken);
-        System.out.println(userUid);
         PostLoginRes postLoginRes=sellerService.reissue(userUid);
 
         return ResponseEntity.ok(new BaseResponse<>(postLoginRes));

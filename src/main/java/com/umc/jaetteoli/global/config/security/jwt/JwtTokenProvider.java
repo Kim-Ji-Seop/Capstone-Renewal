@@ -65,12 +65,12 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
         // redis에 저장
-//        redisTemplate.opsForValue().set(
-//                authentication.getName(),
-//                refreshToken,
-//                JWT_EXPIRATION_MS,
-//                TimeUnit.MILLISECONDS
-//        );
+        redisTemplate.opsForValue().set(
+                authentication.getName(),
+                refreshToken,
+                JWT_EXPIRATION_MS,
+                TimeUnit.MILLISECONDS
+        );
         return TokenDto.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
