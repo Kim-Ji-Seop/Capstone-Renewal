@@ -1,11 +1,13 @@
 package com.umc.jaetteoli.domain.web.seller.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.umc.jaetteoli.domain.web.seller.dto.*;
 import com.umc.jaetteoli.domain.web.seller.entity.Seller;
 import com.umc.jaetteoli.domain.web.seller.repository.SellerRepository;
 import com.umc.jaetteoli.domain.web.sms.entity.Sms;
 import com.umc.jaetteoli.domain.web.sms.repository.SmsRepository;
 import com.umc.jaetteoli.global.config.error.exception.BaseException;
+import com.umc.jaetteoli.global.config.redis.RedisDao;
 import com.umc.jaetteoli.global.config.security.Role;
 import com.umc.jaetteoli.global.config.security.jwt.JwtTokenProvider;
 import com.umc.jaetteoli.global.config.security.jwt.TokenDto;
@@ -21,6 +23,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -40,9 +45,9 @@ import static com.umc.jaetteoli.global.util.Regex.*;
 public class SellerService {
     @Value("${sms.apiKey}")
     private String apiKey;
-
     @Value("${sms.secret}")
     private String secret;
+    private final RedisDao redisDao;
     private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -212,13 +217,42 @@ public class SellerService {
             TokenDto token = jwtTokenProvider.generateToken(authentication,seller.getSellerIdx());
 
             // 5. PostLoginRes 반환
-            PostLoginRes response = new PostLoginRes(token, seller.getSellerIdx(), seller.getName(), seller.getFirstLogin(), seller.getMenuRegister(), null, null);
-
-            return response;
+            return PostLoginRes.builder()
+                    .token(token)
+                    .sellerIdx(seller.getSellerIdx())
+                    .name(seller.getName())
+                    .first_login(seller.getFirstLogin())
+                    .menu_register(seller.getMenuRegister())
+                    .build();
 
         }catch (BadCredentialsException e){
             throw new BaseException(FAIL_AUTHENTICATION);
         }
 
+    }
+
+    public PostLoginRes reissue(String userUid) throws JsonProcessingException {
+        String rtkInRedis = redisDao.getValues(userUid);
+
+        if (Objects.isNull(rtkInRedis)){
+            throw new BaseException(EXPIRED_AUTHENTICATION);
+        }
+
+        String rtkUid = jwtTokenProvider.getUserUidFromJWT(rtkInRedis);
+        Optional<Seller> seller = sellerRepository.findByUid(userUid);
+
+        Seller authSeller = seller.get();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(authSeller, null, authSeller.getAuthorities());
+
+        TokenDto token = jwtTokenProvider.reissueAtk(userUid,rtkUid,seller.get().getSellerIdx(),authentication);
+
+        return PostLoginRes.builder()
+                .token(token)
+                .sellerIdx(seller.get().getSellerIdx())
+                .name(seller.get().getName())
+                .first_login(seller.get().getFirstLogin())
+                .menu_register(seller.get().getMenuRegister())
+                .build();
     }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -19,6 +20,7 @@ import static com.umc.jaetteoli.global.config.error.ErrorCode.INVALID_TOKEN;
 import static com.umc.jaetteoli.global.config.error.ErrorCode.REDIS_ERROR;
 
 @RequiredArgsConstructor
+@Component
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
 
@@ -51,8 +53,10 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
+
+
     // Request Header 에서 토큰 정보 추출
-    private String resolveToken(HttpServletRequest request) {
+    public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("X-ACCESS-TOKEN");
         // StringUtils.hasText(bearerToken): bearerToken에 값이 있는지 확인
         // bearerToken.startsWith("Bearer"): "X-ACCESS-TOKEN" 헤더의 값이 "Bearer"로 시작하는지 확인

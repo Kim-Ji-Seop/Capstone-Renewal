@@ -30,6 +30,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,  419,"만료된 Refresh Token 입니다."),
     FAIL_AUTHENTICATION(HttpStatus.UNAUTHORIZED,  420,"사용자 인증에 실패하였습니다."),
 
+    EXPIRED_AUTHENTICATION(HttpStatus.UNAUTHORIZED,421,"인증정보가 만료되었습니다."),
 
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, 500,"이미 존재하는 이메일입니다."),
 
