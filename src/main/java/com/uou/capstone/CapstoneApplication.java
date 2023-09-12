@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CapstoneApplication {
-    // 인스턴스 ssh 포트 Anywhere 허용
+    // 로컬 docker-compose 실행 테스트 후 재배포
     public static void main(String[] args) {
         SpringApplication.run(CapstoneApplication.class, args);
     }
