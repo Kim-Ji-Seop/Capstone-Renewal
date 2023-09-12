@@ -42,9 +42,8 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
-          SMS_API_KEY: ${{ secrets.SMS_API_KEY }}
-          SMS_SECRET: ${{ secrets.SMS_SECRET }}
-
+          ADMIN_MAIL_ID: ${{ secrets.ADMIN_MAIL_ID }}
+          ADMIN_MAIL_PW: ${{ secrets.ADMIN_MAIL_PW }}
       - name: Create env file
         run: |
           echo DB_ENDPOINT=${{ secrets.DB_ENDPOINT }} >> .env
@@ -52,21 +51,21 @@ jobs:
           echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
           echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
           echo JWT_TOKEN=${{ secrets.JWT_TOKEN }} >> .env
-          echo SMS_API_KEY=${{ secrets.SMS_API_KEY }} >> .env
-          echo SMS_SECRET=${{ secrets.SMS_SECRET }} >> .env
+          echo ADMIN_MAIL_ID=${{ secrets.ADMIN_MAIL_ID }} >> .env
+          echo ADMIN_MAIL_PW=${{ secrets.ADMIN_MAIL_PW }} >> .env
 
       ## 이미지 빌드 및 도커허브에 push
       - name: server docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/jaetteoli-server .
-          docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-server
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/capstoneuou-server .
+          docker push ${{ secrets.DOCKER_REPO }}/capstoneuou-server
 
       - name: nginx docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx .
-          docker push ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
+          docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/capstoneuou-nginx .
+          docker push ${{ secrets.DOCKER_REPO }}/capstoneuou-nginx
 
 
       - name: Copy docker-compose.yaml to EC2
@@ -98,9 +97,10 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-server
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-web
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/jaetteoli-nginx
-            sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml down
-            sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d --force-recreate
+            if [ "$(docker ps -qa)" ]; then
+              sudo docker rm -f $(docker ps -qa)
+            fi
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/capstoneuou-server
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/capstoneuou-nginx
+            sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d
             docker image prune -f

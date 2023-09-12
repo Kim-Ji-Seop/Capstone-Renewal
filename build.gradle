@@ -5,7 +5,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
-group = 'com.umc'
+group = 'com.uou'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -13,7 +13,7 @@ java {
 }
 
 application {
-    mainClassName = 'com.umc.jaetteoli.JaetteoliApplication'
+    mainClassName = 'com.uou.capstone.CapstoneApplication'
 }
 
 
@@ -32,7 +32,7 @@ jar {
 }
 
 bootJar {
-    archiveBaseName.set('jaetteoli')
+    archiveBaseName.set('capstone')
     archiveVersion.set('0.0.1-SNAPSHOT')
 }
 
@@ -55,8 +55,8 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // nurigo 문자인증
-    implementation 'net.nurigo:sdk:4.2.7'
+    // 이메일 인증
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {

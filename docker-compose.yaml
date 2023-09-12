@@ -2,7 +2,7 @@ version: '3'
 services:
   server:
     container_name: server
-    image: kimjiseop/jaetteoli-server
+    image: kimjiseop/capstoneuou-server
     expose:
       - 8081
     ports:
@@ -24,40 +24,16 @@ services:
       - 6379:6379
     volumes:
       - redis-data:/data
-
-  web:
-    container_name: web
-    image: kimjiseop/jaetteoli-web
-    expose:
-      - 3000
-    environment:
-      TZ: "Asia/Seoul" # timezone 설정
-
   nginx:
     container_name: nginx
-    image: kimjiseop/jaetteoli-nginx
+    image: kimjiseop/capstoneuou-nginx
     restart: unless-stopped
     ports:
       - 80:80
-      - 443:443
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
     depends_on:
       - "server"
-      - "web"
     environment:
       TZ: "Asia/Seoul" # timezone 설정
-    command : "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
-  certbot:
-    image: certbot/certbot
-    restart: unless-stopped
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   redis-data:
