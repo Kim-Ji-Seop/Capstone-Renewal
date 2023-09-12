@@ -1,7 +1,6 @@
 package com.uou.capstone.global.config.security.userdetails;
 
 import com.uou.capstone.domain.app.user.repository.UserRepository;
-import com.uou.capstone.domain.web.seller.repository.SellerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailService implements UserDetailsService {
 
-    private final SellerRepository sellerRepository;
     private final UserRepository userRepository;
 
     @Override

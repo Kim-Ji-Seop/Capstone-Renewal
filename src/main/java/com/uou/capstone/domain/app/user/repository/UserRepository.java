@@ -2,7 +2,6 @@ package com.uou.capstone.domain.app.user.repository;
 
 import com.sun.istack.NotNull;
 import com.uou.capstone.domain.app.user.entity.UserEntity;
-import com.uou.capstone.domain.web.seller.entity.Seller;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
