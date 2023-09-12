@@ -18,7 +18,6 @@ spring:
     password: ${DB_PASSWORD}
   jwt:
     secret: ${JWT_TOKEN}
-
   jpa:
     open-in-view: true
     hibernate:
@@ -27,10 +26,10 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
     database: mysql
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
 mail:
   smtp:
     port: 587

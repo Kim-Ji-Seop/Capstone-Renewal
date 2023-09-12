@@ -53,7 +53,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 // app 부분 들어가면 전체 허용 해제 해야함
-                .antMatchers("/api/app/**").permitAll()
+                .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
