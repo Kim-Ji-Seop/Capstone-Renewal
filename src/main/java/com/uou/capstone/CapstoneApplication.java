@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CapstoneApplication {
-    // EC2(Ubuntu 20.04) 도커-컴포즈 패키지 설치 후 재배포
     public static void main(String[] args) {
         SpringApplication.run(CapstoneApplication.class, args);
     }
