@@ -40,6 +40,7 @@ public enum ErrorCode {
     SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 3003, "서버 내부에 오류가 발생했습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED,403,"인가되지 않은 사용자입니다."),
     COOLSMS_API_ERROR(INTERNAL_SERVER_ERROR, 501, "SMS 인증번호 발송을 실패하였습니다."),
+    EMAIL_SEND_FAILED(INTERNAL_SERVER_ERROR,510,"이메일 전송 실패"),
 
     // Database 예외
     DATABASE_ERROR(INTERNAL_SERVER_ERROR,511,"데이터베이스 오류입니다."),

@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostAuthEmailBeforeRes {
-    private String authEmailCheck;
+    private String authCode;
 }

@@ -1,6 +1,5 @@
 package com.uou.capstone.domain.app.user.service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeReq;
 import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeRes;
 import com.uou.capstone.global.config.EmailService;
@@ -16,20 +15,26 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Random;
 
+import static com.uou.capstone.global.config.error.ErrorCode.EMAIL_SEND_FAILED;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService implements EmailService {
     private final JavaMailSender emailSender;
+    public static final String ePw = createKey();
+
     public PostAuthEmailBeforeRes emailcheckBefore(PostAuthEmailBeforeReq postAuthEmailBeforeReq) throws BaseException {
+        String verificationCode;
         try{
-            sendSimpleMessage(postAuthEmailBeforeReq.getEmail());
+            verificationCode = sendSimpleMessage(postAuthEmailBeforeReq.getEmail()); // 이메일 전송
         }catch (Exception e){
             e.printStackTrace();
+            throw new BaseException(EMAIL_SEND_FAILED);
         }
-        return new PostAuthEmailBeforeRes("Success");
+        return new PostAuthEmailBeforeRes(verificationCode);
     }
-    public static final String ePw = createKey();
+
 
     private MimeMessage createMessage(String to)throws Exception{
         System.out.println("보내는 대상 : "+ to);
