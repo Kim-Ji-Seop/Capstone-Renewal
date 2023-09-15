@@ -17,7 +17,7 @@ import java.util.Collections;
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
-public class UserEntity extends BaseEntity implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userIdx;
@@ -35,6 +35,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 50)
     private Role role;
 
     @Override
@@ -69,5 +70,15 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Enumerated(value = EnumType.STRING)
+    private OAuthType oAuthType;
+
+    public enum OAuthType{
+        EMAIL,
+        GOOGLE,
+        KAKAO,
+        NAVER
     }
 }

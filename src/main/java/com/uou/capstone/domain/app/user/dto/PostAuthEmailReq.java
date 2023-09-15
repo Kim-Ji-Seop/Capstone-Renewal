@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostAuthEmailBeforeReq {
+public class PostAuthEmailReq {
     private String email;
 }

@@ -1,38 +1,47 @@
 package com.uou.capstone.domain.app.user.service;
 
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeReq;
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeRes;
+import com.uou.capstone.domain.app.user.dto.PostAuthEmailReq;
+import com.uou.capstone.domain.app.user.dto.PostAuthEmailRes;
+import com.uou.capstone.domain.app.user.dto.PostSignUpUserReq;
+import com.uou.capstone.domain.app.user.dto.PostSignUpUserRes;
+import com.uou.capstone.domain.app.user.entity.User;
+import com.uou.capstone.domain.app.user.repository.UserRepository;
 import com.uou.capstone.global.config.EmailService;
 import com.uou.capstone.global.config.error.exception.BaseException;
+import com.uou.capstone.global.config.security.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Random;
 
-import static com.uou.capstone.global.config.error.ErrorCode.EMAIL_SEND_FAILED;
+import static com.uou.capstone.global.config.error.ErrorCode.*;
+import static com.uou.capstone.global.util.Regex.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService implements EmailService {
     private final JavaMailSender emailSender;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-
-    public PostAuthEmailBeforeRes emailcheckBefore(PostAuthEmailBeforeReq postAuthEmailBeforeReq) throws BaseException {
+    public PostAuthEmailRes emailcheck(PostAuthEmailReq postAuthEmailReq) throws BaseException {
         String ePw = createKey();
         String verificationCode;
         try{
-            verificationCode = sendSimpleMessage(postAuthEmailBeforeReq.getEmail(),ePw); // 이메일 전송
+            verificationCode = sendSimpleMessage(postAuthEmailReq.getEmail(),ePw); // 이메일 전송
         }catch (Exception e){
             throw new BaseException(EMAIL_SEND_FAILED);
         }
-        return new PostAuthEmailBeforeRes(verificationCode);
+        return new PostAuthEmailRes(verificationCode);
     }
 
 
@@ -99,5 +108,44 @@ public class UserService implements EmailService {
             throw new IllegalArgumentException();
         }
         return ePw;
+    }
+    @Transactional(rollbackFor = BaseException.class)
+    public PostSignUpUserRes emailSignUp(PostSignUpUserReq postSignUpUserReq) throws BaseException {
+        if(checkIsEmptySignUpByEmail(postSignUpUserReq)){
+            throw new BaseException(BAD_REQUEST);
+        }
+        if(!isRegexEmail(postSignUpUserReq.getEmail())){
+            throw new BaseException(INVALID_EMAIL_FORMAT);
+        }
+        if(!isRegexPassword(postSignUpUserReq.getPassword())){
+            throw new BaseException(INVALID_PW_FORMAT);
+        }
+        try{ // 비밀번호 암호화 -> 사용자 요청 값 중 비밀번호 최신화
+            String encryptPassword = passwordEncoder.encode(postSignUpUserReq.getPassword());
+            postSignUpUserReq.setPassword(encryptPassword);
+        }catch (Exception e){
+            throw new BaseException(PASSWORD_ENCRYPTION_FAILURE); // 비밀번호 암호화 실패 시
+        }
+        try{
+            User newUser = User.builder()
+                    .email(postSignUpUserReq.getEmail())
+                    .password(postSignUpUserReq.getPassword())
+                    .name(postSignUpUserReq.getName())
+                    .nickname(postSignUpUserReq.getNickname())
+                    .role(Role.CUSTOMER)
+                    .oAuthType(User.OAuthType.EMAIL)
+                    .build();
+
+            newUser = userRepository.save(newUser);
+            PostSignUpUserRes postSignUpUserRes = new PostSignUpUserRes(newUser.getUserIdx());
+            return postSignUpUserRes;
+        }catch (Exception e){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public boolean checkIsEmptySignUpByEmail(PostSignUpUserReq postSignUpUserReq){
+        return postSignUpUserReq.getEmail().isEmpty() || postSignUpUserReq.getPassword().isEmpty()
+                || postSignUpUserReq.getName().isEmpty() || postSignUpUserReq.getNickname().isEmpty();
     }
 }

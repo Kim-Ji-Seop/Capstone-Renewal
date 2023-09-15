@@ -1,7 +1,9 @@
 package com.uou.capstone.domain.app.user;
 
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeReq;
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailBeforeRes;
+import com.uou.capstone.domain.app.user.dto.PostAuthEmailReq;
+import com.uou.capstone.domain.app.user.dto.PostAuthEmailRes;
+import com.uou.capstone.domain.app.user.dto.PostSignUpUserReq;
+import com.uou.capstone.domain.app.user.dto.PostSignUpUserRes;
 import com.uou.capstone.domain.app.user.service.UserService;
 import com.uou.capstone.global.config.error.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +19,17 @@ public class UserController {
     public String testApi(){
         return "Success";
     }
+    // 이메일 인증코드 전송 및 인증
     @PostMapping("/users/auth/email")
-    public ResponseEntity<BaseResponse<PostAuthEmailBeforeRes>> emailCheckBefore(@RequestBody PostAuthEmailBeforeReq postAuthEmailBeforeReq){
-        PostAuthEmailBeforeRes postAuthEmailBeforeRes = userService.emailcheckBefore(postAuthEmailBeforeReq);
-        return ResponseEntity.ok(new BaseResponse<>(postAuthEmailBeforeRes));
+    public ResponseEntity<BaseResponse<PostAuthEmailRes>> emailCheck(@RequestBody PostAuthEmailReq postAuthEmailReq){
+        PostAuthEmailRes postAuthEmailRes = userService.emailcheck(postAuthEmailReq);
+        return ResponseEntity.ok(new BaseResponse<>(postAuthEmailRes));
+    }
+
+    @PostMapping("/users/auth")
+    public ResponseEntity<BaseResponse<PostSignUpUserRes>> emailSignUp(@RequestBody PostSignUpUserReq postSignUpUserReq){
+        PostSignUpUserRes postSignUpUserRes = userService.emailSignUp(postSignUpUserReq);
+        return ResponseEntity.ok(new BaseResponse<>(postSignUpUserRes));
     }
 
 }
