@@ -22,24 +22,24 @@ import static com.uou.capstone.global.config.error.ErrorCode.EMAIL_SEND_FAILED;
 @RequiredArgsConstructor
 public class UserService implements EmailService {
     private final JavaMailSender emailSender;
-    public static final String ePw = createKey();
+
 
     public PostAuthEmailBeforeRes emailcheckBefore(PostAuthEmailBeforeReq postAuthEmailBeforeReq) throws BaseException {
+        String ePw = createKey();
         String verificationCode;
         try{
-            verificationCode = sendSimpleMessage(postAuthEmailBeforeReq.getEmail()); // 이메일 전송
+            verificationCode = sendSimpleMessage(postAuthEmailBeforeReq.getEmail(),ePw); // 이메일 전송
         }catch (Exception e){
-            e.printStackTrace();
             throw new BaseException(EMAIL_SEND_FAILED);
         }
         return new PostAuthEmailBeforeRes(verificationCode);
     }
 
 
-    private MimeMessage createMessage(String to)throws Exception{
+    private MimeMessage createMessage(String to, String ePw)throws Exception{
         System.out.println("보내는 대상 : "+ to);
         System.out.println("인증 번호 : "+ePw);
-        MimeMessage  message = emailSender.createMimeMessage();
+        MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(Message.RecipientType.TO, to);//보내는 대상
         message.setSubject("이메일 인증 테스트");//제목
@@ -89,9 +89,9 @@ public class UserService implements EmailService {
         return key.toString();
     }
     @Override
-    public String sendSimpleMessage(String to)throws Exception {
+    public String sendSimpleMessage(String to,String ePw)throws Exception {
         // TODO Auto-generated method stub
-        MimeMessage message = createMessage(to);
+        MimeMessage message = createMessage(to,ePw);
         try{//예외처리
             emailSender.send(message);
         }catch(MailException es){
