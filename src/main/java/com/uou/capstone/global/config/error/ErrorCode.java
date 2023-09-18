@@ -17,10 +17,8 @@ public enum ErrorCode {
     // 커스텀 코드
     // 회원가입 - 정규표현식, 중복, 빈값
     INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST,4000,"이메일 정규 표현식 예외입니다."),
-    INVALID_UID_FORMAT(HttpStatus.BAD_REQUEST,410,"아이디 정규 표현식 예외입니다."),
-    INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,411,"비밀번호 정규 표현식 예외입니다."),
-    INVALID_BIRTH_FORMAT(HttpStatus.BAD_REQUEST,412,"생년월일 정규 표현식 예외입니다."),
-    INVALID_PHONE_NUM_FORMAT(HttpStatus.BAD_REQUEST,413,"핸드폰번호 정규 표현식 예외입니다."),
+    INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,4001,"비밀번호 정규 표현식 예외입니다."),
+    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT,4002,"이미 존재하는 이메일입니다"),
     ID_ALREADY_EXISTS(HttpStatus.CONFLICT,414,"중복된 아이디 입니다."),
     PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,510,"비밀번호 암호화에 실패했습니다."),
 
@@ -34,8 +32,6 @@ public enum ErrorCode {
     FAIL_AUTHENTICATION(HttpStatus.UNAUTHORIZED,  420,"사용자 인증에 실패하였습니다."),
 
     EXPIRED_AUTHENTICATION(HttpStatus.UNAUTHORIZED,421,"인증정보가 만료되었습니다."),
-
-    EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, 500,"이미 존재하는 이메일입니다."),
 
     INVALID_KAKAO_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED,403,"유효하지 않은 Kakao Access Token입니다."),
     INVALID_HTTP_METHOD(METHOD_NOT_ALLOWED, 3001, "잘못된 Http Method 요청입니다."),

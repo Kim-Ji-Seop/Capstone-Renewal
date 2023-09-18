@@ -2,6 +2,7 @@ package com.uou.capstone.global.config.error;
 
 import com.uou.capstone.global.config.error.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -71,14 +72,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<BaseResponse<?>> handleBaseException(BaseException e) {
         // 예외에서 메시지와 코드만 추출
+        HttpStatus httpStatus = e.getHttpStatus();
         String errorMessage = e.getMessage();
         int errorCode = e.getCode();
 
         // BaseResponse 생성
-        BaseResponse<?> response = new BaseResponse<>(errorMessage, errorCode);
+        BaseResponse<?> response = new BaseResponse<>(httpStatus,errorMessage, errorCode);
 
         return ResponseEntity
-                .status(e.getCode())
+                .status(httpStatus)
                 .body(response);
     }
 

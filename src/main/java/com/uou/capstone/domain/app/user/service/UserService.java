@@ -120,6 +120,9 @@ public class UserService implements EmailService {
         if(!isRegexPassword(postSignUpUserReq.getPassword())){
             throw new BaseException(INVALID_PW_FORMAT);
         }
+        if(userRepository.findByEmail(postSignUpUserReq.getEmail()).isPresent()){
+            throw new BaseException(EMAIL_ALREADY_EXISTS);
+        }
         try{ // 비밀번호 암호화 -> 사용자 요청 값 중 비밀번호 최신화
             String encryptPassword = passwordEncoder.encode(postSignUpUserReq.getPassword());
             postSignUpUserReq.setPassword(encryptPassword);
