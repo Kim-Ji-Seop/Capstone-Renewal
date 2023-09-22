@@ -259,4 +259,51 @@ public class UserService implements EmailService {
     }
 
 
+    public PostAuthGoogleSdkRes googleSdkLogin(PostAuthGoogleSdkReq postAuthGoogleSdkReq) throws BaseException {
+        User user;
+        Optional<User> existingUser = userRepository.findByEmailAndProvider(postAuthGoogleSdkReq.getEmail(), User.Provider.GOOGLE);
+
+        // 사용자가 데이터베이스에 이미 존재하는 경우
+        if(existingUser.isPresent()) {
+            user = existingUser.get();
+        }
+        // 최초 로그인인 경우
+        else {
+            // 카카오 로그인 유저 임시 비밀번호 만든다
+            String encryptPassword = passwordEncoder.encode(postAuthGoogleSdkReq.getEmail());
+            try {
+                user = User.builder()
+                        .email(postAuthGoogleSdkReq.getEmail())
+                        .password(encryptPassword)
+                        .name(postAuthGoogleSdkReq.getNickname())
+                        .nickname(postAuthGoogleSdkReq.getNickname())
+                        .role(Role.CUSTOMER)
+                        .profileUrl(postAuthGoogleSdkReq.getProfileImg())
+                        .provider(User.Provider.GOOGLE)
+                        .build();
+                // 디비에 저장
+                user = userRepository.save(user);
+            } catch (BaseException e) {
+                throw new BaseException(DATABASE_ERROR);
+            }
+        }
+
+        try {
+            // jwt 토큰 발급
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+            UserDetails userDetails = user;
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx(), user.getProvider());
+
+            // PostAuthKakaoSdkRes 반환
+            return PostAuthGoogleSdkRes.builder()
+                    .tokenDto(token)
+                    .userIdx(user.getUserIdx())
+                    .nickname(user.getNickname())
+                    .build();
+
+        } catch (BadCredentialsException e) {
+            throw new BaseException(FAIL_AUTHENTICATION);
+        }
+    }
 }

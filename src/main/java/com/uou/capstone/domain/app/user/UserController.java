@@ -43,4 +43,11 @@ public class UserController {
         return ResponseEntity.ok(new BaseResponse<>(postAuthKakaoSdkRes));
     }
 
+    // 5. 구글 로그인 (SDK)
+    @PostMapping("/users/auth/google")
+    public ResponseEntity<BaseResponse<PostAuthGoogleSdkRes>> googleSdkLogin(@RequestBody PostAuthGoogleSdkReq postAuthGoogleSdkReq){
+        PostAuthGoogleSdkRes postAuthGoogleSdkRes = userService.googleSdkLogin(postAuthGoogleSdkReq);
+        return ResponseEntity.ok(new BaseResponse<>(postAuthGoogleSdkRes));
+    }
+
 }
