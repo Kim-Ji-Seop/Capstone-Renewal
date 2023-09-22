@@ -38,12 +38,23 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "role", nullable = false, length = 50)
     private Role role;
 
+    @Column(name = "profileUrl", length = 500)
+    private String profileUrl;
+
+    @Enumerated(value = EnumType.STRING)
+    private Provider provider;
+
+    public enum Provider{
+        EMAIL,
+        GOOGLE,
+        KAKAO
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getKey());
         return Collections.singletonList(authority);
     }
-
     @Override
     public String getUsername() {
         return this.email;
@@ -52,6 +63,7 @@ public class User extends BaseEntity implements UserDetails {
     public String getPassword() {
         return this.password;
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -70,15 +82,5 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @Enumerated(value = EnumType.STRING)
-    private OAuthType oAuthType;
-
-    public enum OAuthType{
-        EMAIL,
-        GOOGLE,
-        KAKAO,
-        NAVER
     }
 }

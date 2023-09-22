@@ -1,9 +1,6 @@
 package com.uou.capstone.domain.app.user;
 
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailReq;
-import com.uou.capstone.domain.app.user.dto.PostAuthEmailRes;
-import com.uou.capstone.domain.app.user.dto.PostSignUpUserReq;
-import com.uou.capstone.domain.app.user.dto.PostSignUpUserRes;
+import com.uou.capstone.domain.app.user.dto.*;
 import com.uou.capstone.domain.app.user.service.UserService;
 import com.uou.capstone.global.config.error.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,17 +16,25 @@ public class UserController {
     public String testApi(){
         return "Success";
     }
-    // 이메일 인증코드 전송 및 인증
-    @PostMapping("/users/auth/email")
+    // 1. 이메일 인증코드 전송
+    @PostMapping("/users/auth/email/validation")
     public ResponseEntity<BaseResponse<PostAuthEmailRes>> emailCheck(@RequestBody PostAuthEmailReq postAuthEmailReq){
         PostAuthEmailRes postAuthEmailRes = userService.emailcheck(postAuthEmailReq);
         return ResponseEntity.ok(new BaseResponse<>(postAuthEmailRes));
     }
 
-    @PostMapping("/users/auth")
+    // 2. 이메일 인증 회원가입
+    @PostMapping("/users/auth/email")
     public ResponseEntity<BaseResponse<PostSignUpUserRes>> emailSignUp(@RequestBody PostSignUpUserReq postSignUpUserReq){
         PostSignUpUserRes postSignUpUserRes = userService.emailSignUp(postSignUpUserReq);
         return ResponseEntity.ok(new BaseResponse<>(postSignUpUserRes));
+    }
+
+    // 3. 카카오 로그인 (SDK)
+    @PostMapping("/users/auth/kakao")
+    public ResponseEntity<BaseResponse<PostAuthKakaoSdkRes>> kakaoSdkLogin(@RequestBody PostAuthKakaoSdkReq postAuthKakaoSdkReq){
+        PostAuthKakaoSdkRes postAuthKakaoSdkRes = userService.kakaoSdkLogin(postAuthKakaoSdkReq);
+        return ResponseEntity.ok(new BaseResponse<>(postAuthKakaoSdkRes));
     }
 
 }

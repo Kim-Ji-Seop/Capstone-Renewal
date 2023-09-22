@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-@JsonPropertyOrder({"isSuccess", "code", "message", "result"})
+@JsonPropertyOrder({"httpStatus", "code", "message", "result"})
 public class BaseResponse<T> {//BaseResponse 객체를 사용할때 성공, 실패 경우
     private final HttpStatus httpStatus;
     private final String message;

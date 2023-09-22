@@ -2,12 +2,12 @@ package com.uou.capstone.global.config.security.jwt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.uou.capstone.global.config.error.exception.BaseException;
+import com.uou.capstone.global.config.redis.RedisDao;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,12 +16,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.uou.capstone.domain.app.user.entity.User.Provider;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.uou.capstone.global.config.error.ErrorCode.EXPIRED_AUTHENTICATION;
@@ -31,9 +31,10 @@ import static com.uou.capstone.global.config.error.ErrorCode.EXPIRED_AUTHENTICAT
 public class JwtTokenProvider {
 
     private final Key key;
-    private final RedisTemplate<String, Object> redisTemplate;
-    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey, RedisTemplate<String, Object> redisTemplate){
-        this.redisTemplate = redisTemplate;
+    private final RedisDao redisDao;
+
+    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey, RedisDao redisDao){
+        this.redisDao = redisDao;
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
         this.key = Keys.hmacShaKeyFor(secretByteKey);
     }
@@ -42,7 +43,7 @@ public class JwtTokenProvider {
     private static final int JWT_EXPIRATION_MS = 604800000; // 유효시간 : 일주일
 
     // jwt 토큰 생성
-    public TokenDto generateToken(Authentication authentication,Long userIdx) {
+    public TokenDto generateToken(Authentication authentication, Long userIdx, Provider provider) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         String authorities = authentication.getAuthorities().stream()
@@ -54,6 +55,7 @@ public class JwtTokenProvider {
                 .setSubject(username) // 사용자
                 .claim("auth",authorities)
                 .claim("userIdx",userIdx)
+                .claim("provider",provider)
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅 (30분)
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
@@ -65,12 +67,8 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
         // redis에 저장
-        redisTemplate.opsForValue().set(
-                authentication.getName(),
-                refreshToken,
-                JWT_EXPIRATION_MS,
-                TimeUnit.MILLISECONDS
-        );
+        redisDao.setValues(authentication, refreshToken, JWT_EXPIRATION_MS + 5000L);
+
         return TokenDto.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -137,7 +135,7 @@ public class JwtTokenProvider {
     }
 
     // refresh token으로 accessToken 재발급
-    public TokenDto reissueAtk(String userUid,String rtkUid, Long userIdx, Authentication authentication) throws JsonProcessingException {
+    public TokenDto reissueAtk(String userUid,String rtkUid, Long userIdx, Authentication authentication, Provider provider) throws JsonProcessingException {
 
         if(!rtkUid.equals(userUid)){
             throw new BaseException(EXPIRED_AUTHENTICATION);
@@ -155,6 +153,7 @@ public class JwtTokenProvider {
                 .setSubject(username) // 사용자
                 .claim("auth",authorities)
                 .claim("userIdx",userIdx)
+                .claim("provider",provider)
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅 (30분)
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
@@ -166,6 +165,10 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate) // 만료 시간 세팅
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
+
+        // redis에 저장
+        redisDao.setValues(authentication, refreshToken, JWT_EXPIRATION_MS + 5000L);
+
         return TokenDto.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
