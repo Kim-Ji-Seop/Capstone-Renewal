@@ -19,12 +19,12 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST,4000,"이메일 정규 표현식 예외입니다."),
     INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,4001,"비밀번호 정규 표현식 예외입니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT,4002,"이미 존재하는 이메일입니다"),
-    ID_ALREADY_EXISTS(HttpStatus.CONFLICT,414,"중복된 아이디 입니다."),
     PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,510,"비밀번호 암호화에 실패했습니다."),
 
 
     // [User] 로그인
-    FAILED_TO_LOGIN(HttpStatus.UNAUTHORIZED,415,"없는 아이디이거나 비밀번호가 틀렸습니다"),
+    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED,4003,"해당하는 유저를 찾을 수 없습니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED,4004,"비밀번호가 틀렸습니다"),
     TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, 416, "JWT Token이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,  417,"유효하지 않은 JWT Token 입니다."),
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,  418,"만료된 Access Token 입니다."),

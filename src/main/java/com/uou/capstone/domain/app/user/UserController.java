@@ -29,8 +29,14 @@ public class UserController {
         PostSignUpUserRes postSignUpUserRes = userService.emailSignUp(postSignUpUserReq);
         return ResponseEntity.ok(new BaseResponse<>(postSignUpUserRes));
     }
+    // 3. 이메일 로그인
+    @PostMapping("/users/login/email")
+    public ResponseEntity<BaseResponse<PostLoginEmailRes>> emailLogin(@RequestBody PostLoginEmailReq postLoginEmailReq){
+        PostLoginEmailRes postLoginEmailRes = userService.emailLogin(postLoginEmailReq);
+        return ResponseEntity.ok(new BaseResponse<>(postLoginEmailRes));
+    }
 
-    // 3. 카카오 로그인 (SDK)
+    // 4. 카카오 로그인 (SDK)
     @PostMapping("/users/auth/kakao")
     public ResponseEntity<BaseResponse<PostAuthKakaoSdkRes>> kakaoSdkLogin(@RequestBody PostAuthKakaoSdkReq postAuthKakaoSdkReq){
         PostAuthKakaoSdkRes postAuthKakaoSdkRes = userService.kakaoSdkLogin(postAuthKakaoSdkReq);

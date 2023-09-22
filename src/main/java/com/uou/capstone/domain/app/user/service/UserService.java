@@ -1,6 +1,5 @@
 package com.uou.capstone.domain.app.user.service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.uou.capstone.domain.app.user.dto.*;
 import com.uou.capstone.domain.app.user.entity.User;
 import com.uou.capstone.domain.app.user.repository.UserRepository;
@@ -9,7 +8,7 @@ import com.uou.capstone.global.config.error.exception.BaseException;
 import com.uou.capstone.global.config.security.Role;
 import com.uou.capstone.global.config.security.jwt.JwtTokenProvider;
 import com.uou.capstone.global.config.security.jwt.TokenDto;
-import com.uou.capstone.global.util.SHA256;
+import com.uou.capstone.global.config.security.userdetails.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -21,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static com.uou.capstone.global.config.error.ErrorCode.*;
@@ -43,6 +43,7 @@ public class UserService implements EmailService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final CustomUserDetailService customUserDetailService;
     private final JwtTokenProvider jwtTokenProvider;
     public PostAuthEmailRes emailcheck(PostAuthEmailReq postAuthEmailReq) throws BaseException {
         String ePw = createKey();
@@ -162,43 +163,100 @@ public class UserService implements EmailService {
         return postSignUpUserReq.getEmail().isEmpty() || postSignUpUserReq.getPassword().isEmpty()
                 || postSignUpUserReq.getName().isEmpty() || postSignUpUserReq.getNickname().isEmpty();
     }
+    public PostLoginEmailRes emailLogin(PostLoginEmailReq postLoginEmailReq) throws BaseException {
+        if(checkIsEmptyLoginByEmail(postLoginEmailReq)){
+            throw new BaseException(BAD_REQUEST);
+        }
+        if(!isRegexEmail(postLoginEmailReq.getEmail())){
+            throw new BaseException(INVALID_EMAIL_FORMAT);
+        }
+        if(!isRegexPassword(postLoginEmailReq.getPassword())){
+            throw new BaseException(INVALID_PW_FORMAT);
+        }
+        try {
+            // 1. 이메일:EMAIL 합쳐서 유저판별
+            String combinedEmailAndProvider = postLoginEmailReq.getEmail() + ":EMAIL";
+            UserDetails userDetails = customUserDetailService.loadUserByUsername(combinedEmailAndProvider);
 
+            // 2. 패스워드 검증
+            User user = (User) userDetails;
+            if (!checkPassword(user, postLoginEmailReq.getPassword())) {
+                throw new BaseException(INVALID_PASSWORD);
+            }
+
+            // 3. jwt 토큰 발급
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(combinedEmailAndProvider, postLoginEmailReq.getPassword());
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            TokenDto token = jwtTokenProvider.generateToken(authentication,user.getUserIdx(),user.getProvider());
+
+            // 4. PostLoginRes 반환
+            return PostLoginEmailRes.builder()
+                    .tokenDto(token)
+                    .userIdx(user.getUserIdx())
+                    .nickname(user.getNickname())
+                    .build();
+        } catch (UsernameNotFoundException e) {
+            throw new BaseException(USER_NOT_FOUND);
+        } catch (BadCredentialsException e){
+            throw new BaseException(FAIL_AUTHENTICATION);
+        } catch (Exception e) {
+            throw new BaseException(NOT_FOUND);
+        }
+    }
+    public boolean checkPassword(User user, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public boolean checkIsEmptyLoginByEmail(PostLoginEmailReq postLoginEmailReq){
+        return postLoginEmailReq.getEmail().isEmpty() || postLoginEmailReq.getPassword().isEmpty();
+    }
     public PostAuthKakaoSdkRes kakaoSdkLogin(PostAuthKakaoSdkReq postAuthKakaoSdkReq) throws BaseException {
         User user;
-        // 1. 카카오 로그인 유저 임시 비밀번호 만든다
-        String encryptPassword = passwordEncoder.encode(postAuthKakaoSdkReq.getEmail());
-        try{
-            user = User.builder()
-                    .email(postAuthKakaoSdkReq.getEmail())
-                    .password(encryptPassword)
-                    .name(postAuthKakaoSdkReq.getNickname())
-                    .nickname(postAuthKakaoSdkReq.getNickname())
-                    .role(Role.CUSTOMER)
-                    .profileUrl(postAuthKakaoSdkReq.getProfileImg())
-                    .provider(User.Provider.KAKAO)
-                    .build();
-            // 2. 디비에 저장
-            user = userRepository.save(user);
-            // 3. BaseException말고도 다른 Exception도 처리해야함. -> 추후 변경
-        }catch (BaseException e){
-            throw new BaseException(DATABASE_ERROR);
-        }
-        try{
-            // 4. jwt 토큰 발급
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
-            UserDetails userDetails = user;  // User 엔터티 인스턴스를 사용합니다.
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx(),user.getProvider());
+        Optional<User> existingUser = userRepository.findByEmailAndProvider(postAuthKakaoSdkReq.getEmail(), User.Provider.KAKAO);
 
-            // 5. PostAuthKakaoSdkRes 반환
+        // 사용자가 데이터베이스에 이미 존재하는 경우
+        if(existingUser.isPresent()) {
+            user = existingUser.get();
+        }
+        // 최초 로그인인 경우
+        else {
+            // 카카오 로그인 유저 임시 비밀번호 만든다
+            String encryptPassword = passwordEncoder.encode(postAuthKakaoSdkReq.getEmail());
+            try {
+                user = User.builder()
+                        .email(postAuthKakaoSdkReq.getEmail())
+                        .password(encryptPassword)
+                        .name(postAuthKakaoSdkReq.getNickname())
+                        .nickname(postAuthKakaoSdkReq.getNickname())
+                        .role(Role.CUSTOMER)
+                        .profileUrl(postAuthKakaoSdkReq.getProfileImg())
+                        .provider(User.Provider.KAKAO)
+                        .build();
+                // 디비에 저장
+                user = userRepository.save(user);
+            } catch (BaseException e) {
+                throw new BaseException(DATABASE_ERROR);
+            }
+        }
+
+        try {
+            // jwt 토큰 발급
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+            UserDetails userDetails = user;
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx(), user.getProvider());
+
+            // PostAuthKakaoSdkRes 반환
             return PostAuthKakaoSdkRes.builder()
                     .tokenDto(token)
                     .userIdx(user.getUserIdx())
                     .nickname(user.getNickname())
                     .build();
 
-        }catch (BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             throw new BaseException(FAIL_AUTHENTICATION);
         }
     }
+
+
 }
