@@ -53,8 +53,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
-
-
     // Request Header 에서 토큰 정보 추출
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("X-ACCESS-TOKEN");

@@ -311,7 +311,7 @@ public class UserService implements EmailService {
         }
     }
 
-    public GetReissueRes reissue(String userEmailandProvider) throws BaseException, JsonProcessingException {
+    public GetReissueRes reissueAtk(String userEmailandProvider) throws BaseException, JsonProcessingException {
         String rtkInRedis = redisDao.getValues(userEmailandProvider); // 리프레쉬 토큰 가져오기
 
         if (Objects.isNull(rtkInRedis)){
@@ -339,4 +339,6 @@ public class UserService implements EmailService {
             throw new BaseException(FAIL_AUTHENTICATION);
         }
     }
+
+
 }

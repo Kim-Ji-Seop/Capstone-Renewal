@@ -158,20 +158,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
 
-        String refreshToken=Jwts.builder()
-                .setSubject(username) // 사용자
-                .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
-                .setExpiration(expiryDate) // 만료 시간 세팅
-                .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
-                .compact();
-
-        // 같은 이름의 키값 - 밸류가 존재한다면, 삭제해야 혼동x
-        if(!redisDao.getValues(userEmailAndProvider).isEmpty()){
-            redisDao.deleteValues(userEmailAndProvider);
-        }
-
-        // redis에 저장
-        redisDao.setValues(authentication, refreshToken, JWT_EXPIRATION_MS + 5000L);
+        String refreshToken = redisDao.getValues(rtkKey);
 
         return TokenDto.builder()
                 .grantType("Bearer")
