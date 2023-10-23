@@ -43,7 +43,7 @@ public class JwtTokenProvider {
     private static final int JWT_EXPIRATION_MS = 604800000; // 유효시간 : 일주일
 
     // jwt 토큰 생성
-    public TokenDto generateToken(Authentication authentication, Long userIdx, Provider provider) {
+    public TokenDto generateToken(Authentication authentication, Long userIdx) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         String authorities = authentication.getAuthorities().stream()
@@ -55,7 +55,6 @@ public class JwtTokenProvider {
                 .setSubject(username) // 사용자
                 .claim("auth",authorities)
                 .claim("userIdx",userIdx)
-                .claim("provider",provider)
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅 (30분)
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
@@ -117,8 +116,8 @@ public class JwtTokenProvider {
         }
         return false;
     }
-    // Jwt 토큰에서 아이디 추출
-    public String getUserUidFromJWT(String token) {
+    // Jwt 토큰에서 이메일:프로바이더 추출
+    public String getUserEmailAndProviderFromJWT(String token) {
         System.out.println(token);
         try{
             Claims claims = Jwts.parser()
@@ -135,11 +134,12 @@ public class JwtTokenProvider {
     }
 
     // refresh token으로 accessToken 재발급
-    public TokenDto reissueAtk(String userUid,String rtkUid, Long userIdx, Authentication authentication, Provider provider) throws JsonProcessingException {
+    public TokenDto reissueAtk(String userEmailAndProvider,String rtkKey, Long userIdx, Authentication authentication) throws JsonProcessingException {
 
-        if(!rtkUid.equals(userUid)){
+        if(!rtkKey.equals(userEmailAndProvider)) {
             throw new BaseException(EXPIRED_AUTHENTICATION);
         }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         String authorities = authentication.getAuthorities().stream()
@@ -153,7 +153,6 @@ public class JwtTokenProvider {
                 .setSubject(username) // 사용자
                 .claim("auth",authorities)
                 .claim("userIdx",userIdx)
-                .claim("provider",provider)
                 .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
                 .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅 (30분)
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
@@ -165,6 +164,11 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate) // 만료 시간 세팅
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
                 .compact();
+
+        // 같은 이름의 키값 - 밸류가 존재한다면, 삭제해야 혼동x
+        if(!redisDao.getValues(userEmailAndProvider).isEmpty()){
+            redisDao.deleteValues(userEmailAndProvider);
+        }
 
         // redis에 저장
         redisDao.setValues(authentication, refreshToken, JWT_EXPIRATION_MS + 5000L);

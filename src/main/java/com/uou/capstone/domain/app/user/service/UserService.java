@@ -1,10 +1,12 @@
 package com.uou.capstone.domain.app.user.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.uou.capstone.domain.app.user.dto.*;
 import com.uou.capstone.domain.app.user.entity.User;
 import com.uou.capstone.domain.app.user.repository.UserRepository;
 import com.uou.capstone.global.config.EmailService;
 import com.uou.capstone.global.config.error.exception.BaseException;
+import com.uou.capstone.global.config.redis.RedisDao;
 import com.uou.capstone.global.config.security.Role;
 import com.uou.capstone.global.config.security.jwt.JwtTokenProvider;
 import com.uou.capstone.global.config.security.jwt.TokenDto;
@@ -29,6 +31,7 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -45,6 +48,7 @@ public class UserService implements EmailService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final CustomUserDetailService customUserDetailService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisDao redisDao;
     public PostAuthEmailRes emailcheck(PostAuthEmailReq postAuthEmailReq) throws BaseException {
         String ePw = createKey();
         String verificationCode;
@@ -187,7 +191,7 @@ public class UserService implements EmailService {
             // 3. jwt 토큰 발급
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(combinedEmailAndProvider, postLoginEmailReq.getPassword());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            TokenDto token = jwtTokenProvider.generateToken(authentication,user.getUserIdx(),user.getProvider());
+            TokenDto token = jwtTokenProvider.generateToken(authentication,user.getUserIdx());
 
             // 4. PostLoginRes 반환
             return PostLoginEmailRes.builder()
@@ -244,7 +248,7 @@ public class UserService implements EmailService {
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
             UserDetails userDetails = user;
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx(), user.getProvider());
+            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx());
 
             // PostAuthKakaoSdkRes 반환
             return PostAuthKakaoSdkRes.builder()
@@ -293,7 +297,7 @@ public class UserService implements EmailService {
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
             UserDetails userDetails = user;
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx(), user.getProvider());
+            TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx());
 
             // PostAuthKakaoSdkRes 반환
             return PostAuthGoogleSdkRes.builder()
@@ -303,6 +307,35 @@ public class UserService implements EmailService {
                     .build();
 
         } catch (BadCredentialsException e) {
+            throw new BaseException(FAIL_AUTHENTICATION);
+        }
+    }
+
+    public GetReissueRes reissue(String userEmailandProvider) throws BaseException, JsonProcessingException {
+        String rtkInRedis = redisDao.getValues(userEmailandProvider); // 리프레쉬 토큰 가져오기
+
+        if (Objects.isNull(rtkInRedis)){
+            throw new BaseException(EXPIRED_AUTHENTICATION);
+        }
+
+        String rtkKey = jwtTokenProvider.getUserEmailAndProviderFromJWT(rtkInRedis); // 키값 가져오기
+        UserDetails userDetails = customUserDetailService.loadUserByUsername(userEmailandProvider);
+
+        User user = (User) userDetails;
+
+        try{
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+
+            TokenDto token = jwtTokenProvider.reissueAtk(userEmailandProvider, rtkKey, user.getUserIdx(), authentication);
+
+            return GetReissueRes.builder()
+                    .tokenDto(token)
+                    .userIdx(user.getUserIdx())
+                    .nickname(user.getNickname())
+                    .provider(user.getProvider().toString())
+                    .build();
+        }catch (BadCredentialsException e){
             throw new BaseException(FAIL_AUTHENTICATION);
         }
     }

@@ -19,12 +19,11 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST,4000,"이메일 정규 표현식 예외입니다."),
     INVALID_PW_FORMAT(HttpStatus.BAD_REQUEST,4001,"비밀번호 정규 표현식 예외입니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT,4002,"이미 존재하는 이메일입니다"),
-    PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,510,"비밀번호 암호화에 실패했습니다."),
-
-
     // [User] 로그인
     USER_NOT_FOUND(HttpStatus.UNAUTHORIZED,4003,"해당하는 유저를 찾을 수 없습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED,4004,"비밀번호가 틀렸습니다"),
+
+
     TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, 416, "JWT Token이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,  417,"유효하지 않은 JWT Token 입니다."),
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,  418,"만료된 Access Token 입니다."),
@@ -42,8 +41,10 @@ public enum ErrorCode {
     COOLSMS_API_ERROR(INTERNAL_SERVER_ERROR, 501, "SMS 인증번호 발송을 실패하였습니다."),
     EMAIL_SEND_FAILED(INTERNAL_SERVER_ERROR,510,"이메일 전송 실패"),
 
+    PASSWORD_ENCRYPTION_FAILURE(INTERNAL_SERVER_ERROR,5000,"비밀번호 암호화에 실패했습니다."),
+
     // Database 예외
-    DATABASE_ERROR(INTERNAL_SERVER_ERROR,511,"데이터베이스 오류입니다."),
+    DATABASE_ERROR(INTERNAL_SERVER_ERROR,5100,"데이터베이스 오류입니다."),
     REDIS_ERROR(INTERNAL_SERVER_ERROR, 512, "Redis 연결에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
