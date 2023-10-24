@@ -311,7 +311,7 @@ public class UserService implements EmailService {
         }
     }
 
-    public GetReissueRes reissueAtk(String userEmailandProvider) throws BaseException, JsonProcessingException {
+    public GetReissueRes reissue(String userEmailandProvider) throws BaseException, JsonProcessingException {
         String rtkInRedis = redisDao.getValues(userEmailandProvider); // 리프레쉬 토큰 가져오기
 
         if (Objects.isNull(rtkInRedis)){
@@ -327,7 +327,7 @@ public class UserService implements EmailService {
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
 
-            TokenDto token = jwtTokenProvider.reissueAtk(userEmailandProvider, rtkKey, user.getUserIdx(), authentication);
+            TokenDto token = jwtTokenProvider.reissue(userEmailandProvider, rtkKey, user.getUserIdx(), authentication);
 
             return GetReissueRes.builder()
                     .tokenDto(token)

@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.uou.capstone.domain.app.user.entity.User.Provider;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Arrays;
@@ -100,22 +99,6 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal,"",authorities);
     }
 
-    // Jwt 토큰 유효성 검사
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token");
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
-        } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
-        } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.");
-        }
-        return false;
-    }
     // Jwt 토큰에서 이메일:프로바이더 추출
     public String getUserEmailAndProviderFromJWT(String token) {
         System.out.println(token);
@@ -134,7 +117,7 @@ public class JwtTokenProvider {
     }
 
     // refresh token으로 accessToken 재발급
-    public TokenDto reissueAtk(String userEmailAndProvider,String rtkKey, Long userIdx, Authentication authentication) throws JsonProcessingException {
+    public TokenDto reissue(String userEmailAndProvider, String rtkKey, Long userIdx, Authentication authentication) throws JsonProcessingException {
 
         if(!rtkKey.equals(userEmailAndProvider)) {
             throw new BaseException(EXPIRED_AUTHENTICATION);

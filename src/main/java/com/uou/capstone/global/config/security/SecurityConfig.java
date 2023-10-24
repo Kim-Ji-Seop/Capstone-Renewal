@@ -1,5 +1,6 @@
 package com.uou.capstone.global.config.security;
 
+import com.uou.capstone.global.config.redis.RedisDao;
 import com.uou.capstone.global.config.security.jwt.JwtAuthenticationEntryPoint;
 import com.uou.capstone.global.config.security.jwt.JwtAuthenticationFilter;
 import com.uou.capstone.global.config.security.jwt.JwtTokenProvider;
@@ -26,6 +27,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final RedisDao redisDao;
 
     @Autowired
     private final CustomUserDetailService customUserDetailService;
@@ -52,11 +54,10 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                // app 부분 들어가면 전체 허용 해제 해야함
                 .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisDao), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

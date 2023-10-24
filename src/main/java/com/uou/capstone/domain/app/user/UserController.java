@@ -60,9 +60,9 @@ public class UserController {
     // 6. 토큰 재발급
     @GetMapping("/users/auth/reissue")
     public ResponseEntity<BaseResponse<GetReissueRes>> reissue(HttpServletRequest request) throws JsonProcessingException {
-        String jwtToken = jwtAuthenticationFilter.resolveToken(request);
+        String jwtToken = jwtAuthenticationFilter.getJwtFromRequest(request);
         String userEmailandProvider = jwtTokenProvider.getUserEmailAndProviderFromJWT(jwtToken);
-        GetReissueRes getReissueRes = userService.reissueAtk(userEmailandProvider);
+        GetReissueRes getReissueRes = userService.reissue(userEmailandProvider);
         return ResponseEntity.ok(new BaseResponse<>(getReissueRes));
     }
 }
