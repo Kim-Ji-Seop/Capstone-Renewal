@@ -273,7 +273,7 @@ public class UserService implements EmailService {
         }
         // 최초 로그인인 경우
         else {
-            // 카카오 로그인 유저 임시 비밀번호 만든다
+            // 구글 로그인 유저 임시 비밀번호 만든다
             String encryptPassword = passwordEncoder.encode(postAuthGoogleSdkReq.getEmail());
             try {
                 user = User.builder()
@@ -299,7 +299,7 @@ public class UserService implements EmailService {
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
             TokenDto token = jwtTokenProvider.generateToken(authentication, user.getUserIdx());
 
-            // PostAuthKakaoSdkRes 반환
+            // PostAuthGoogleSdkRes 반환
             return PostAuthGoogleSdkRes.builder()
                     .tokenDto(token)
                     .userIdx(user.getUserIdx())
